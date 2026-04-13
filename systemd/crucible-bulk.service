@@ -1,0 +1,22 @@
+[Unit]
+Description=Nexus Bulk Worker (Secondary-Server) — Long-Running LLM Jobs
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=nexus
+Group=nexus
+WorkingDirectory=/opt/nexus/Services/nexus
+ExecStart=/opt/nexus/.nvm/versions/node/v22.22.2/bin/node packages/worker/dist/index.js
+EnvironmentFile=/opt/nexus/Services/nexus/.env
+Environment=NODE_ENV=production
+Environment=WORKER_MODE=bulk
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=secondary-server-bulk
+
+[Install]
+WantedBy=multi-user.target

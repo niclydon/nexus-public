@@ -1,0 +1,22 @@
+[Unit]
+Description=Nexus Worker — Agent Cycle Runner + Job Execution
+After=network-online.target postgresql.service nexus-api.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=nexus
+Group=nexus
+WorkingDirectory=/opt/nexus/Services/nexus
+ExecStart=/usr/bin/node packages/worker/dist/index.js
+EnvironmentFile=/opt/nexus/Services/nexus/.env
+Environment=PATH=/opt/nexus/.local/bin:/usr/local/bin:/usr/bin:/bin
+Environment=NODE_ENV=production
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=nexus-worker
+
+[Install]
+WantedBy=multi-user.target

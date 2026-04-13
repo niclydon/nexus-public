@@ -1,0 +1,69 @@
+{
+  "specVersion": "0.5",
+  "name": "insight",
+  "displayName": "Analyst",
+  "version": "2.0.0",
+  "description": "Institutional memory and behavioral intelligence \u2014 decisions, Aurora narratives, patterns.",
+  "author": {
+    "name": "Anonymous",
+    "github": "anonymous"
+  },
+  "license": "Apache-2.0",
+  "tags": [
+    "analytics",
+    "memory",
+    "aurora",
+    "patterns",
+    "documentation"
+  ],
+  "category": "intelligence/analysis",
+  "compatibility": {
+    "frameworks": [
+      "nexus"
+    ],
+    "models": [
+      "qwen3.5-35b-a3b"
+    ],
+    "minTokenContext": 8192
+  },
+  "allowedTools": [
+    "query_db",
+    "check_system",
+    "inbox_send",
+    "remember",
+    "search_tools",
+    "request_tool",
+    "score_decision",
+    "get_eval_summary",
+    "github__*",
+    "notion__*",
+    "apple-photos__*",
+    "gmail__*",
+    "google-drive__*",
+    "brave-search__*"
+  ],
+  "files": {
+    "soul": "SOUL.md",
+    "identity": "IDENTITY.md",
+    "agents": "AGENTS.md"
+  },
+  "disclosure": {
+    "summary": "Tracks decisions, surfaces Aurora behavioral patterns, maintains institutional memory."
+  },
+  "deprecated": false,
+  "nexus": {
+    "schedule_interval_sec": 2700,
+    "autonomy": "moderate",
+    "executor": "nexus",
+    "llm_config": {
+      "model": "qwen3.5-35b-a3b",
+      "url": "http://localhost:8088/v1"
+    },
+    "absorbs": [
+      "librarian",
+      "aurora-narrator",
+      "improver"
+    ],
+    "response_schema": "nexus-v2"
+  }
+}

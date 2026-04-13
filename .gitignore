@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.env
+.env.local
+.env.*.local
+*.tsbuildinfo
+.DS_Store
+*.p8
+*.zip
+*.csv
+*.db
+*.sqlite
+*.sqlite3
+data/
+backups/
+tmp-*.sql

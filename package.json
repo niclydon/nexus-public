@@ -1,0 +1,38 @@
+{
+  "name": "nexus",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/core",
+    "packages/api",
+    "packages/mcp",
+    "packages/worker"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "build:core": "npm run build -w @nexus/core",
+    "build:api": "npm run build -w @nexus/api",
+    "build:mcp": "npm run build -w @nexus/mcp",
+    "build:worker": "npm run build -w @nexus/worker",
+    "start:api": "npm run start -w @nexus/api",
+    "start:worker": "npm run start -w @nexus/worker",
+    "dev:api": "npm run dev -w @nexus/api",
+    "dev:worker": "npm run dev -w @nexus/worker",
+    "clean": "npm run clean --workspaces",
+    "typecheck": "tsc --build",
+    "migrate": "npm run migrate -w @nexus/core"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.82.0",
+    "@types/sax": "^1.2.7",
+    "better-sqlite3": "^12.8.0",
+    "dotenv": "^17.4.0",
+    "ml-kmeans": "^7.0.0",
+    "pst-extractor": "^1.12.0",
+    "sax": "^1.6.0"
+  }
+}

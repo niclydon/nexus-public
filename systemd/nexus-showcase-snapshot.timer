@@ -1,0 +1,11 @@
+[Unit]
+Description=Nexus Showcase Snapshot — daily at 4 AM Eastern
+
+[Timer]
+OnCalendar=*-*-* 08:00:00 UTC
+Persistent=true
+AccuracySec=10min
+Unit=nexus-showcase-snapshot.service
+
+[Install]
+WantedBy=timers.target

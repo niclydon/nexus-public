@@ -1,0 +1,17 @@
+[Unit]
+Description=Nexus Showcase — Live Stats Tick (writes live.json for nexus.example.io)
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=nexus
+Group=nexus
+WorkingDirectory=/opt/nexus/Services/nexus
+EnvironmentFile=/opt/nexus/Services/nexus/.env
+Environment=PATH=/opt/nexus/.local/bin:/usr/local/bin:/usr/bin:/bin
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/npx tsx /opt/nexus/Services/nexus/scripts/showcase-stats-tick.ts
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=nexus-showcase-stats

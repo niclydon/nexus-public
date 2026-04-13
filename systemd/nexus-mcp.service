@@ -1,0 +1,23 @@
+[Unit]
+Description=Nexus MCP — Model Context Protocol Server
+After=network-online.target postgresql.service nexus-api.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=nexus
+Group=nexus
+WorkingDirectory=/opt/nexus/Services/nexus
+ExecStart=/usr/bin/node packages/mcp/dist/index.js
+EnvironmentFile=/opt/nexus/Services/nexus/.env
+Environment=PATH=/opt/nexus/.local/bin:/usr/local/bin:/usr/bin:/bin
+Environment=NODE_ENV=production
+Environment=MCP_PORT=7701
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=nexus-mcp
+
+[Install]
+WantedBy=multi-user.target

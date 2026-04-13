@@ -1,0 +1,18 @@
+[Unit]
+Description=Nexus Showcase — Daily snapshot rebuild (souls, commits, featured trace, activity feed)
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=nexus
+Group=nexus
+WorkingDirectory=/opt/nexus/Services/nexus
+EnvironmentFile=/opt/nexus/Services/nexus/.env
+Environment=PATH=/opt/nexus/.local/bin:/usr/local/bin:/usr/bin:/bin
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/npx tsx /opt/nexus/Services/nexus/scripts/build-showcase-data.ts
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=nexus-showcase-snapshot
+TimeoutStartSec=10min

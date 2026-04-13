@@ -1,0 +1,78 @@
+{
+  "specVersion": "0.5",
+  "name": "aria",
+  "displayName": "ARIA",
+  "version": "2.0.0",
+  "description": "Personal AI assistant and central coordinator of the Nexus agent team.",
+  "author": {
+    "name": "Anonymous",
+    "github": "anonymous"
+  },
+  "license": "Apache-2.0",
+  "tags": [
+    "assistant",
+    "coordinator",
+    "briefing",
+    "personal",
+    "scheduler"
+  ],
+  "category": "core/assistant",
+  "compatibility": {
+    "frameworks": [
+      "nexus"
+    ],
+    "models": [
+      "qwen3.5-35b-a3b",
+      "anthropic/claude-sonnet-*"
+    ],
+    "minTokenContext": 32768
+  },
+  "allowedTools": [
+    "query_db",
+    "check_system",
+    "inbox_send",
+    "remember",
+    "search_tools",
+    "request_tool",
+    "escalate",
+    "send_pushover",
+    "create_task",
+    "update_task",
+    "send_email",
+    "github__*",
+    "cloudflare__*",
+    "notion__*",
+    "apple-photos__*",
+    "gmail__*",
+    "google-drive__*",
+    "brave-search__*"
+  ],
+  "files": {
+    "soul": "SOUL.md",
+    "identity": "IDENTITY.md",
+    "agents": "AGENTS.md",
+    "heartbeat": "HEARTBEAT.md"
+  },
+  "disclosure": {
+    "summary": "the owner's personal assistant and team coordinator. Synthesizes briefings, routes escalations, manages tasks."
+  },
+  "deprecated": false,
+  "nexus": {
+    "schedule_interval_sec": 600,
+    "autonomy": "high",
+    "executor": "nexus",
+    "llm_config": {
+      "model": "qwen3.5-35b-a3b",
+      "url": "http://localhost:8088/v1"
+    },
+    "absorbs": [
+      "chief-of-staff",
+      "check-in",
+      "daily-briefing",
+      "calendar-prep",
+      "voice-followup"
+    ],
+    "event_driven": true,
+    "response_schema": "nexus-v2"
+  }
+}

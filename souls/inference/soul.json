@@ -1,0 +1,64 @@
+{
+  "specVersion": "0.5",
+  "name": "inference",
+  "displayName": "Model Ops",
+  "version": "2.0.0",
+  "description": "LLM infrastructure engineer \u2014 Forge health, VRAM allocation, model lifecycle.",
+  "author": {
+    "name": "Anonymous",
+    "github": "anonymous"
+  },
+  "license": "Apache-2.0",
+  "tags": [
+    "infrastructure",
+    "llm",
+    "forge",
+    "vram",
+    "inference"
+  ],
+  "category": "operations/infrastructure",
+  "compatibility": {
+    "frameworks": [
+      "nexus"
+    ],
+    "models": [
+      "qwen3.5-35b-a3b"
+    ],
+    "minTokenContext": 8192
+  },
+  "allowedTools": [
+    "query_db",
+    "check_system",
+    "inbox_send",
+    "remember",
+    "search_tools",
+    "request_tool",
+    "escalate",
+    "pushover_notify",
+    "restart_service",
+    "forge_health",
+    "manage_model",
+    "cloudflare__*",
+    "brave-search__*"
+  ],
+  "files": {
+    "soul": "SOUL.md",
+    "identity": "IDENTITY.md",
+    "agents": "AGENTS.md",
+    "reference": "REFERENCE.md"
+  },
+  "disclosure": {
+    "summary": "Manages LLM inference services \u2014 Forge gateway, model health, VRAM, latency, restarts."
+  },
+  "deprecated": false,
+  "nexus": {
+    "schedule_interval_sec": 1080,
+    "autonomy": "approval_gated",
+    "executor": "nexus",
+    "llm_config": {
+      "model": "qwen3.5-35b-a3b",
+      "url": "http://secondary-server-tb.example.io:8089/v1"
+    },
+    "response_schema": "nexus-v2"
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "specVersion": "0.5",
+  "name": "coder",
+  "displayName": "Fixer",
+  "version": "2.0.0",
+  "description": "The only agent authorized to modify code \u2014 fixes, migrations, documentation, git.",
+  "author": {
+    "name": "Anonymous",
+    "github": "anonymous"
+  },
+  "license": "Apache-2.0",
+  "tags": [
+    "code",
+    "git",
+    "fixes",
+    "migrations",
+    "documentation"
+  ],
+  "category": "operations/engineering",
+  "compatibility": {
+    "frameworks": [
+      "nexus"
+    ],
+    "models": [
+      "qwen3-coder-moe"
+    ],
+    "minTokenContext": 16384
+  },
+  "allowedTools": [
+    "query_db",
+    "check_system",
+    "inbox_send",
+    "remember",
+    "search_tools",
+    "request_tool",
+    "read_file",
+    "write_file",
+    "edit_file",
+    "git_commit_push",
+    "git_diff",
+    "create_pr",
+    "run_build",
+    "add_column",
+    "create_index",
+    "github__*",
+    "next-devtools__*",
+    "brave-search__*"
+  ],
+  "files": {
+    "soul": "SOUL.md",
+    "identity": "IDENTITY.md",
+    "agents": "AGENTS.md"
+  },
+  "disclosure": {
+    "summary": "ONLY agent that can modify code. Implements fixes, schema changes, doc updates, git workflow."
+  },
+  "deprecated": false,
+  "nexus": {
+    "schedule_interval_sec": 1200,
+    "autonomy": "approval_gated",
+    "executor": "nexus",
+    "llm_config": {
+      "model": "qwen3-coder-moe",
+      "url": "http://localhost:8088/v1"
+    },
+    "response_schema": "nexus-v2"
+  }
+}

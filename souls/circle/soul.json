@@ -1,0 +1,59 @@
+{
+  "specVersion": "0.5",
+  "name": "circle",
+  "displayName": "Relationships",
+  "version": "2.0.0",
+  "description": "Social intelligence \u2014 relationship health, drift detection, meeting prep, birthdays.",
+  "author": {
+    "name": "Anonymous",
+    "github": "anonymous"
+  },
+  "license": "Apache-2.0",
+  "tags": [
+    "social",
+    "circle",
+    "contacts",
+    "sentiment",
+    "communication"
+  ],
+  "category": "intelligence/social",
+  "compatibility": {
+    "frameworks": [
+      "nexus"
+    ],
+    "models": [
+      "qwen3.5-35b-a3b"
+    ],
+    "minTokenContext": 8192
+  },
+  "allowedTools": [
+    "query_db",
+    "inbox_send",
+    "remember",
+    "search_tools",
+    "request_tool",
+    "notion__*",
+    "apple-photos__*",
+    "gmail__*",
+    "brave-search__*"
+  ],
+  "files": {
+    "soul": "SOUL.md",
+    "identity": "IDENTITY.md",
+    "agents": "AGENTS.md"
+  },
+  "disclosure": {
+    "summary": "Monitors relationship health across all channels \u2014 drift alerts, emerging connections, meeting prep."
+  },
+  "deprecated": false,
+  "nexus": {
+    "schedule_interval_sec": 21600,
+    "autonomy": "moderate",
+    "executor": "nexus",
+    "llm_config": {
+      "model": "qwen3.5-35b-a3b",
+      "url": "http://localhost:8088/v1"
+    },
+    "response_schema": "nexus-v2"
+  }
+}

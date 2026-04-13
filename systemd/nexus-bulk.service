@@ -1,0 +1,23 @@
+[Unit]
+Description=Nexus Bulk Worker — Long-Running LLM Jobs (backfill, embeddings, sentiment)
+After=network-online.target postgresql.service nexus-worker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=nexus
+Group=nexus
+WorkingDirectory=/opt/nexus/Services/nexus
+ExecStart=/usr/bin/node packages/worker/dist/index.js
+EnvironmentFile=/opt/nexus/Services/nexus/.env
+Environment=PATH=/opt/nexus/.local/bin:/usr/local/bin:/usr/bin:/bin
+Environment=NODE_ENV=production
+Environment=WORKER_MODE=bulk
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=nexus-bulk
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,65 @@
+{
+  "specVersion": "0.5",
+  "name": "chronicler",
+  "displayName": "Chronicler",
+  "version": "1.0.0",
+  "description": "Biographical intelligence — extracts life story, career history, relationships, and personal facts from messages, emails, photos, and calendar data. Builds and maintains the personal knowledge graph.",
+  "author": {
+    "name": "Anonymous",
+    "github": "anonymous"
+  },
+  "license": "Apache-2.0",
+  "tags": [
+    "biography",
+    "knowledge-graph",
+    "relationships",
+    "life-story",
+    "personal-intelligence"
+  ],
+  "category": "intelligence/biographical",
+  "compatibility": {
+    "frameworks": [
+      "nexus"
+    ],
+    "models": [
+      "llama-3.3-70b"
+    ],
+    "minTokenContext": 16384
+  },
+  "allowedTools": [
+    "query_db",
+    "inbox_send",
+    "remember",
+    "search_tools",
+    "request_tool",
+    "enqueue_job",
+    "delegate_task",
+    "get_checklist",
+    "complete_checklist_item",
+    "create_checklist_item",
+    "gmail__*",
+    "apple-photos__*",
+    "brave-search__*",
+    "imessage__*"
+  ],
+  "files": {
+    "soul": "SOUL.md",
+    "identity": "IDENTITY.md",
+    "checklist": "CHECKLIST.md",
+    "agents": "AGENTS.md"
+  },
+  "disclosure": {
+    "summary": "Mines personal data for biographical facts, career history, relationships, and life events. Builds the knowledge graph."
+  },
+  "deprecated": false,
+  "nexus": {
+    "schedule_interval_sec": 10800,
+    "autonomy": "moderate",
+    "executor": "nexus",
+    "llm_config": {
+      "model": "llama-3.3-70b",
+      "url": "http://localhost:8080"
+    },
+    "response_schema": "nexus-v2"
+  }
+}

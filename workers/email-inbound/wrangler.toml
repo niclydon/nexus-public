@@ -1,0 +1,13 @@
+name = "nexus-email-inbound"
+main = "src/index.ts"
+compatibility_date = "2024-09-25"
+
+[vars]
+WEBHOOK_URL = "https://nexus.example.io/v1/ingest/email"
+FORWARD_TO = ""
+
+# WEBHOOK_SECRET is set via: npx wrangler secret put WEBHOOK_SECRET
+# Must match NEXUS_SYSTEM_KEY on Primary-Server
+#
+# FORWARD_TO: set to a real email address to forward non-agent mail
+# npx wrangler secret put FORWARD_TO

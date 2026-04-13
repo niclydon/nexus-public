@@ -1,0 +1,18 @@
+[Unit]
+Description=Nexus Platform Health Watchdog — checks all critical services + sends alerts on state changes
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=nexus
+Group=nexus
+WorkingDirectory=/opt/nexus/Services/nexus
+EnvironmentFile=/opt/nexus/Services/nexus/.env
+Environment=PATH=/opt/nexus/.local/bin:/usr/local/bin:/usr/bin:/bin
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/npx tsx /opt/nexus/Services/nexus/scripts/health-watchdog.ts
+TimeoutStartSec=2min
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=nexus-health-watchdog
