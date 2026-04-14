@@ -1,5 +1,5 @@
 import express from 'express';
-import { authMiddleware, createLogger, shutdown, platformMode } from '@nexus/core';
+import { authMiddleware, createLogger, shutdown, platformMode, assertShowcaseDemoEnabled } from '@nexus/core';
 import agentsRouter from './routes/agents.js';
 import toolsRouter from './routes/tools.js';
 import inboxRouter from './routes/inbox.js';
@@ -14,6 +14,7 @@ import platformRouter from './routes/platform.js';
 import forgeRouter from './routes/forge.js';
 
 const logger = createLogger('api');
+assertShowcaseDemoEnabled('nexus-api');
 const app = express();
 const port = parseInt(process.env.PORT ?? '7700', 10);
 

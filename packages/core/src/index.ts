@@ -1,6 +1,11 @@
 // Infrastructure
 export { getPool, query, shutdown } from './db.js';
 export { createLogger } from './logger.js';
+export {
+  assertShowcaseDemoEnabled,
+  isShowcaseDemoEnabled,
+  isShowcaseDangerousToolsAllowed,
+} from './showcase.js';
 
 // Middleware
 export { authMiddleware, requireCaller } from './middleware/auth.js';

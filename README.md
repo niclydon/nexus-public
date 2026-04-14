@@ -4,6 +4,17 @@ A distributed agent architecture platform that orchestrates autonomous AI agents
 
 Built as a solo project to unify multiple existing systems into a single ecosystem with centralized services for tools, jobs, knowledge, communication, agent runtime, and discovery.
 
+## Public Showcase Safety
+
+This repository is a **public showcase** of a private system and is intentionally **non-production**.
+
+- All three services (`@nexus/api`, `@nexus/worker`, `@nexus/mcp`) refuse to start unless `NEXUS_SHOWCASE_DEMO=true` is set. See `packages/core/src/showcase.ts`.
+- When running in showcase mode, the tool executor blocks a curated set of high-impact tools by default:
+  `check_system`, `query_db`, `read_file`, `write_file`, `edit_file`, `run_build`, `git_commit_push`, `create_pr`, `restart_service`, `restart_user_service`, `install_mcp_server`, `install_skill`, `send_email`.
+- To re-enable those paths for private lab testing only, also set `NEXUS_SHOWCASE_ALLOW_DANGEROUS_TOOLS=true`.
+
+If you are evaluating the architecture, read and inspect the code. Do not treat this repository as deploy-ready software — it was lifted out of a personal lab, stripped of its data, and is not intended to be run end-to-end.
+
 ## Architecture
 
 ```

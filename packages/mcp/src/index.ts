@@ -19,7 +19,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import express from 'express';
 import { z } from 'zod';
-import { getPool, shutdown } from '@nexus/core';
+import { getPool, shutdown, assertShowcaseDemoEnabled } from '@nexus/core';
 
 import { registerSearchTools } from './tools/search.js';
 import { registerHealthTools } from './tools/health.js';
@@ -29,6 +29,8 @@ import { registerMergeTools } from './tools/merge.js';
 import { registerPeopleTools } from './tools/people.js';
 import { registerBiographyTools } from './tools/biography.js';
 import { registerInsightTools } from './tools/insights.js';
+
+assertShowcaseDemoEnabled('nexus-mcp');
 
 function createServer(): McpServer {
   const server = new McpServer({

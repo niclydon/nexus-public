@@ -1,4 +1,4 @@
-import { createLogger, query, shutdown, platformMode, type Agent } from '@nexus/core';
+import { createLogger, query, shutdown, platformMode, assertShowcaseDemoEnabled, type Agent } from '@nexus/core';
 import { runAgentCycle } from './agent-runner.js';
 import { pollAndProcessJobs, pollPriorityJobs, requeueStaleJobs, getWorkerMode, getRegisteredHandlers } from './job-worker.js';
 import { registerAllHandlers } from './handlers/index.js';
@@ -8,6 +8,7 @@ import { startToolServer } from './tool-server.js';
 import { startAutoscaler, stopAutoscaler } from './autoscaler.js';
 
 const logger = createLogger('worker');
+assertShowcaseDemoEnabled('nexus-worker');
 
 const AGENT_POLL_INTERVAL_MS = 10_000;
 const JOB_POLL_INTERVAL_MS = 5_000;

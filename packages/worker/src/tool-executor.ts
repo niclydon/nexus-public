@@ -1,4 +1,15 @@
-import { createLogger, toolCatalog, comms, agentRegistry, query, evalScorer, semanticSearch, type PlatformTool } from '@nexus/core';
+import {
+  createLogger,
+  toolCatalog,
+  comms,
+  agentRegistry,
+  query,
+  evalScorer,
+  semanticSearch,
+  isShowcaseDemoEnabled,
+  isShowcaseDangerousToolsAllowed,
+  type PlatformTool,
+} from '@nexus/core';
 import { delegateToAgent } from './lib/delegate.js';
 import { consolidateMemories } from './lib/summarize.js';
 import type { ActionRequest } from './lib/llm-router.js';
@@ -57,6 +68,26 @@ const handlers: Record<string, ToolHandler> = {
   semantic_search: handleSemanticSearch,
 };
 
+const SHOWCASE_BLOCKED_TOOLS = new Set([
+  'check_system',
+  'query_db',
+  'read_file',
+  'write_file',
+  'edit_file',
+  'run_build',
+  'git_commit_push',
+  'create_pr',
+  'restart_service',
+  'restart_user_service',
+  'install_mcp_server',
+  'install_skill',
+  'send_email',
+]);
+
+function isToolBlockedInShowcase(toolId: string): boolean {
+  return isShowcaseDemoEnabled() && !isShowcaseDangerousToolsAllowed() && SHOWCASE_BLOCKED_TOOLS.has(toolId);
+}
+
 export async function executeAction(
   agentId: string,
   originalAction: ActionRequest,
@@ -72,6 +103,11 @@ export async function executeAction(
   if (!tool) {
     logger.logVerbose('Tool not granted:', toolId, 'for', agentId);
     return `BLOCKED: You do not have access to tool '${toolId}'. Use search_tools to find available tools and request_tool to request access.`;
+  }
+
+  if (isToolBlockedInShowcase(toolId)) {
+    logger.logMinimal('Blocked showcase tool execution:', toolId, 'for', agentId);
+    return `BLOCKED: '${toolId}' is disabled in public showcase mode. Set NEXUS_SHOWCASE_ALLOW_DANGEROUS_TOOLS=true only for private testing.`;
   }
 
   // Approval gating — two levels:

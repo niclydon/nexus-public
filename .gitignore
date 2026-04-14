@@ -14,3 +14,8 @@ dist/
 data/
 backups/
 tmp-*.sql
+
+# Internal security audit reports — not for public distribution
+security_*.md
+security-*.md
+*_security_report.md
