@@ -23,11 +23,20 @@ const PRICING: Record<string, ModelPricing> = {
   'gpt-4o':                     { inputCentsPerMillion: 250,  outputCentsPerMillion: 1000 },
   'gpt-4o-mini':                { inputCentsPerMillion: 15,   outputCentsPerMillion: 60 },
 
-  // Forge → local inference (zero cost)
+  // Forge → local inference (zero cost) — canonical ids
+  'qwen3-next-chat-80b':        { inputCentsPerMillion: 0,    outputCentsPerMillion: 0 },
+  'qwen3.5-chat-35b-a3b':       { inputCentsPerMillion: 0,    outputCentsPerMillion: 0 },
+  'qwen3-permissive-30b-a3b':   { inputCentsPerMillion: 0,    outputCentsPerMillion: 0 },
+  'qwen3-code-30b-a3b':         { inputCentsPerMillion: 0,    outputCentsPerMillion: 0 },
+  'qwen3-embed-8b':             { inputCentsPerMillion: 0,    outputCentsPerMillion: 0 },
+  'qwen3-vl-8b':                { inputCentsPerMillion: 0,    outputCentsPerMillion: 0 },
+  'qwen3-vl-30b-a3b':           { inputCentsPerMillion: 0,    outputCentsPerMillion: 0 },
+
+  // Legacy ids (retained during 7-day alias sweep window through 2026-04-28)
   'qwen3.5-35b-a3b':            { inputCentsPerMillion: 0,    outputCentsPerMillion: 0 },
   'qwen3-coder-moe':            { inputCentsPerMillion: 0,    outputCentsPerMillion: 0 },
-  'qwen3-vl-8b':                { inputCentsPerMillion: 0,    outputCentsPerMillion: 0 },
   'qwen3-vl-32b':               { inputCentsPerMillion: 0,    outputCentsPerMillion: 0 },
+  'nomic-embed':                { inputCentsPerMillion: 0,    outputCentsPerMillion: 0 },
   'nomic':                      { inputCentsPerMillion: 0,    outputCentsPerMillion: 0 },
 };
 
