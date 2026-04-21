@@ -253,7 +253,7 @@ async function generateEntitySummary(pool: ReturnType<typeof getPool>, entity: E
     maxTokens: 2400,
     // useBatch: false — real-time path. Generation tier currently routes to
     // Claude Haiku as primary (~1.5s/call). Batch API was the old config when
-    // qwen3.5-35b-a3b was primary; with Haiku it would be hours of latency for
+    // qwen3-next-chat-80b was primary; with Haiku it would be hours of latency for
     // ~$0.01 of savings per summary. Real-time wins.
     useBatch: false,
   });

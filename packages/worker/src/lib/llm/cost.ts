@@ -24,8 +24,8 @@ const PRICING: Record<string, ModelPricing> = {
   'gpt-4o-mini':                { inputCentsPerMillion: 15,   outputCentsPerMillion: 60 },
 
   // Forge → local inference (zero cost)
-  'qwen3.5-35b-a3b':            { inputCentsPerMillion: 0,    outputCentsPerMillion: 0 },
-  'qwen3-coder-moe':            { inputCentsPerMillion: 0,    outputCentsPerMillion: 0 },
+  'qwen3-next-chat-80b':            { inputCentsPerMillion: 0,    outputCentsPerMillion: 0 },
+  'qwen3-code-30b-a3b':            { inputCentsPerMillion: 0,    outputCentsPerMillion: 0 },
   'qwen3-vl-8b':                { inputCentsPerMillion: 0,    outputCentsPerMillion: 0 },
   'qwen3-vl-32b':               { inputCentsPerMillion: 0,    outputCentsPerMillion: 0 },
   'nomic':                      { inputCentsPerMillion: 0,    outputCentsPerMillion: 0 },

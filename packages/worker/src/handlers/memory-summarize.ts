@@ -110,7 +110,7 @@ export async function handleMemorySummarize(job: TempoJob): Promise<void> {
 
     try {
       const response = await llm.chat.completions.create({
-        model: 'qwen3.5-35b-a3b',
+        model: 'qwen3-next-chat-80b',
         messages: [
           { role: 'system', content: SYSTEM_PROMPT },
           { role: 'user', content: `Category: ${category}\n\n${batchText}` },

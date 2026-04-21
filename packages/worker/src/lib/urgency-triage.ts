@@ -78,7 +78,7 @@ export async function triageUrgency(
         ...(forgeKey ? { Authorization: `Bearer ${forgeKey}` } : {}),
       },
       body: JSON.stringify({
-        model: 'qwen3.5-35b-a3b',
+        model: 'qwen3-next-chat-80b',
         messages: [
           { role: 'system', content: config.systemPrompt ?? DEFAULT_SYSTEM_PROMPT },
           { role: 'user', content: summaries },

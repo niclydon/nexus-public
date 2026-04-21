@@ -2,7 +2,7 @@
  * Embed Backfill Handler
  *
  * Generates embeddings for rows missing them in any supported table.
- * Uses the local MLX embedding server (nomic-embed-text-v1.5, 768 dims)
+ * Uses the local MLX embedding server (qwen3-embed-8b, 768 dims)
  * with fallback to Google Gemini.
  *
  * Resumable: uses cursor-based pagination (last_id) and self-chains

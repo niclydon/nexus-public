@@ -149,7 +149,7 @@ Only use <agent_task> when actual tool execution is needed. Pure conversation, q
         ...(forgeKey ? { Authorization: `Bearer ${forgeKey}` } : {}),
       },
       body: JSON.stringify({
-        model: 'qwen3.5-35b-a3b',
+        model: 'qwen3-next-chat-80b',
         messages,
         max_tokens: 2000,
         temperature: 0.7,
@@ -168,7 +168,7 @@ Only use <agent_task> when actual tool execution is needed. Pure conversation, q
 
     // Stream LLM response as SSE
     let fullResponse = '';
-    let modelUsed = 'qwen3.5-35b-a3b';
+    let modelUsed = 'qwen3-next-chat-80b';
     let inTaskBlock = false;
     const reader = llmResponse.body.getReader();
     const decoder = new TextDecoder();

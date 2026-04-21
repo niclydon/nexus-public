@@ -22,7 +22,7 @@
       "nexus"
     ],
     "models": [
-      "qwen3.5-35b-a3b"
+      "qwen3-next-chat-80b"
     ],
     "minTokenContext": 8192
   },
@@ -58,7 +58,7 @@
     "autonomy": "moderate",
     "executor": "nexus",
     "llm_config": {
-      "model": "qwen3.5-35b-a3b",
+      "model": "qwen3-next-chat-80b",
       "url": "http://localhost:8088/v1"
     },
     "absorbs": [

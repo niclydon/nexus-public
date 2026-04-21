@@ -28,7 +28,7 @@ export interface ActionRequest {
 export async function callLlm(req: LlmRequest): Promise<LlmResponse | null> {
   const forgeUrl = req.forgeUrl ?? process.env.FORGE_PRIORITY_URL ?? process.env.FORGE_URL ?? 'http://localhost:8088';
   const forgeKey = process.env.FORGE_API_KEY ?? '';
-  const model = req.model ?? 'qwen3.5-35b-a3b';
+  const model = req.model ?? 'qwen3-next-chat-80b';
   const maxTokens = req.maxTokens ?? 2000;
   const temperature = req.temperature ?? 0.1;
 

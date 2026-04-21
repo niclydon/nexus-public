@@ -36,7 +36,7 @@ Rules:
 
 function getLLMClient(): OpenAI {
   // Route through Forge gateway so this works from any host (Primary-Server OR Secondary-Server).
-  // Forge routes the requested model name to the right backend; we use qwen2.5-72b
+  // Forge routes the requested model name to the right backend; we use qwen3-next-chat-80b
   // which lands on the bulk slot (port 8080) and stays off the VIP priority slot.
   return new OpenAI({
     apiKey: process.env.FORGE_API_KEY || 'not-needed',
@@ -214,7 +214,7 @@ async function classifyBatch(_unused: OpenAI | null, texts: TextRecord[]): Promi
   }).join('\n');
 
   // Route via the LLM router. The classification tier currently goes to:
-  //   primary: qwen2.5-72b on Forge bulk slot (port 8080, RPC-split)
+  //   primary: qwen3-next-chat-80b on Forge bulk slot (port 8080, RPC-split)
   //   fallback: gemini-2.5-flash-lite, claude-haiku, gpt-4o-mini
   // Sentiment classification is the textbook use case for the classification
   // tier. We use it instead of generation because classification has more

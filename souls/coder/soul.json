@@ -22,7 +22,7 @@
       "nexus"
     ],
     "models": [
-      "qwen3-coder-moe"
+      "qwen3-code-30b-a3b"
     ],
     "minTokenContext": 16384
   },
@@ -60,7 +60,7 @@
     "autonomy": "approval_gated",
     "executor": "nexus",
     "llm_config": {
-      "model": "qwen3-coder-moe",
+      "model": "qwen3-code-30b-a3b",
       "url": "http://localhost:8088/v1"
     },
     "response_schema": "nexus-v2"

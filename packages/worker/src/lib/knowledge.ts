@@ -64,18 +64,18 @@ interface EmbeddingConfig {
   provider: 'google' | 'openai' | 'local';
 }
 
-// Forge embedding server on Primary-Server (nomic-embed-text-v1.5, 768 dims)
+// Forge embedding server on Primary-Server (qwen3-embed-8b, 768 dims)
 const LOCAL_EMBED_URL = process.env.LOCAL_EMBED_URL || 'http://localhost:8642';
 const EMBED_API_KEY = process.env.FORGE_API_KEY || '';
 
 // Default configs (used if DB config is unavailable)
 const EMBEDDING_DEFAULTS: Record<EmbeddingContentClass, EmbeddingConfig> = {
-  fact: { model: 'nomic-embed-text-v1.5', dimensions: 768, provider: 'local' },
-  conversation: { model: 'nomic-embed-text-v1.5', dimensions: 768, provider: 'local' },
-  email: { model: 'nomic-embed-text-v1.5', dimensions: 768, provider: 'local' },
-  transcript: { model: 'nomic-embed-text-v1.5', dimensions: 768, provider: 'local' },
-  journal: { model: 'nomic-embed-text-v1.5', dimensions: 768, provider: 'local' },
-  narrative: { model: 'nomic-embed-text-v1.5', dimensions: 768, provider: 'local' },
+  fact: { model: 'qwen3-embed-8b', dimensions: 768, provider: 'local' },
+  conversation: { model: 'qwen3-embed-8b', dimensions: 768, provider: 'local' },
+  email: { model: 'qwen3-embed-8b', dimensions: 768, provider: 'local' },
+  transcript: { model: 'qwen3-embed-8b', dimensions: 768, provider: 'local' },
+  journal: { model: 'qwen3-embed-8b', dimensions: 768, provider: 'local' },
+  narrative: { model: 'qwen3-embed-8b', dimensions: 768, provider: 'local' },
 };
 
 // Cache DB config for 5 min

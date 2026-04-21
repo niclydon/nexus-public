@@ -128,7 +128,7 @@ export async function scoreDecision(
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'qwen3.5-35b-a3b',
+        model: 'qwen3-next-chat-80b',
         messages: [
           { role: 'system', content: prompt },
           { role: 'user', content: userMessage },

@@ -193,26 +193,26 @@ const PROVIDER_CALLERS: Record<Provider, ModelConfig['call']> = {
 };
 
 // Hardcoded defaults -- used if DB is unreachable or table is empty.
-// All three tiers route to qwen2.5-72b → Forge backend primary-server-text → port
+// All three tiers route to qwen3-next-chat-80b → Forge backend primary-server-text → port
 // 8080 (the BULK slot, RPC tensor-split with Secondary-Server). The priority slot
-// (port 8088, qwen3.5-35b-a3b) is reserved for agent cycles + interactive
+// (port 8088, qwen3-next-chat-80b) is reserved for agent cycles + interactive
 // chat, both of which use agent_config table directly and bypass this router.
 // Cloud providers are fallbacks.
 const DEFAULT_CHAINS: Record<TaskTier, ModelConfig[]> = {
   reasoning: [
-    { model: 'qwen2.5-72b', provider: 'forge', call: callForge, timeoutMs: 180_000 },
+    { model: 'qwen3-next-chat-80b', provider: 'forge', call: callForge, timeoutMs: 180_000 },
     { model: 'claude-sonnet-4-6', provider: 'anthropic', call: callAnthropic, timeoutMs: 30_000 },
     { model: 'gpt-4o', provider: 'openai', call: callOpenAI, timeoutMs: 20_000 },
     { model: 'claude-haiku-4-5-20251001', provider: 'anthropic', call: callAnthropic, timeoutMs: 15_000 },
   ],
   generation: [
-    { model: 'qwen2.5-72b', provider: 'forge', call: callForge, timeoutMs: 180_000 },
+    { model: 'qwen3-next-chat-80b', provider: 'forge', call: callForge, timeoutMs: 180_000 },
     { model: 'claude-haiku-4-5-20251001', provider: 'anthropic', call: callAnthropic, timeoutMs: 15_000 },
     { model: 'gemini-2.0-flash', provider: 'google', call: callGemini, timeoutMs: 10_000 },
     { model: 'gpt-4o-mini', provider: 'openai', call: callOpenAI, timeoutMs: 10_000 },
   ],
   classification: [
-    { model: 'qwen2.5-72b', provider: 'forge', call: callForge, timeoutMs: 180_000 },
+    { model: 'qwen3-next-chat-80b', provider: 'forge', call: callForge, timeoutMs: 180_000 },
     { model: 'gemini-2.5-flash-lite', provider: 'google', call: callGemini, timeoutMs: 10_000 },
     { model: 'claude-haiku-4-5-20251001', provider: 'anthropic', call: callAnthropic, timeoutMs: 5_000 },
     { model: 'gpt-4o-mini', provider: 'openai', call: callOpenAI, timeoutMs: 5_000 },
