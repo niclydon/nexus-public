@@ -246,20 +246,21 @@ async function embedBatch(texts: string[]): Promise<number[][] | null> {
   try {
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
     if (EMBED_API_KEY) headers['Authorization'] = `Bearer ${EMBED_API_KEY}`;
-    const response = await fetch(`${LOCAL_EMBED_URL}/embed`, {
+    const prefixed = texts.map((t) => `search_document: ${t}`);
+    const response = await fetch(`${LOCAL_EMBED_URL}/v1/embeddings`, {
       method: 'POST',
       headers,
-      body: JSON.stringify({ texts }),
+      body: JSON.stringify({ input: prefixed, model: 'qwen3-embed-8b' }),
       signal: AbortSignal.timeout(120_000),
     });
     if (!response.ok) {
-      console.error(`[embed-backfill] MLX error ${response.status}`);
+      console.error(`[embed-backfill] Forge error ${response.status}`);
       return null;
     }
-    const data = await response.json() as { embeddings?: number[][] };
-    return data.embeddings ?? null;
+    const data = await response.json() as { data?: Array<{ embedding: number[] }> };
+    return data.data?.map((d) => d.embedding) ?? null;
   } catch (err) {
-    console.error(`[embed-backfill] MLX request failed:`, (err as Error).message);
+    console.error(`[embed-backfill] Forge request failed:`, (err as Error).message);
     return null;
   }
 }

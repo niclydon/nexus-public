@@ -322,8 +322,8 @@ function resolveConfigs(categories: SearchCategory[]): TableConfig[] {
 // ---------------------------------------------------------------------------
 
 function forgeEmbedUrl(): string {
-  const base = process.env.FORGE_BASE_URL?.replace('/v1', '') || 'http://localhost:8642';
-  return `${base}/embed`;
+  const base = process.env.FORGE_BASE_URL || 'http://localhost:8642/v1';
+  return `${base}/embeddings`;
 }
 
 function forgeRerankUrl(): string {
@@ -343,15 +343,16 @@ async function getEmbedding(text: string): Promise<number[]> {
   const res = await fetch(forgeEmbedUrl(), {
     method: 'POST',
     headers: forgeHeaders(),
-    body: JSON.stringify({ texts: [text] }),
+    body: JSON.stringify({ input: [`search_document: ${text}`], model: 'qwen3-embed-8b' }),
     signal: AbortSignal.timeout(10_000),
   });
   if (!res.ok) {
     const body = await res.text().catch(() => '');
     throw new Error(`Forge embed failed (${res.status}): ${body.slice(0, 200)}`);
   }
-  const json = (await res.json()) as { embeddings?: number[][] };
-  if (json.embeddings?.[0]) return json.embeddings[0];
+  const json = (await res.json()) as { data?: Array<{ embedding: number[] }> };
+  const vec = json.data?.[0]?.embedding;
+  if (vec) return vec;
   throw new Error('Unexpected embed response shape');
 }
 
