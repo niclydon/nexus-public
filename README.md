@@ -44,6 +44,18 @@ If you are evaluating the architecture, read and inspect the code. Do not treat 
 └──────────────────────────────────────────────────────────────────┘
 ```
 
+## Current Direction
+
+This public repo includes historical artifacts from earlier phases of Nexus, but
+the current direction is more constrained:
+
+- agents are bounded reasoning and coordination layers;
+- processors, handlers, and migrations do deterministic execution;
+- source onboarding and delivery surfaces are treated as explicit contracts.
+
+See `docs/agent-doctrine.md`, `docs/adding-a-source.md`, and
+`docs/dispatch-spec.md` for the current public-safe descriptions.
+
 ## Key Concepts
 
 ### Agent Runtime

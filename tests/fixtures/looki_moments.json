@@ -1,0 +1,21 @@
+{
+  "_comment": "Public example fixture for Looki moments",
+  "_pattern": "pull",
+  "_schema_kind": null,
+  "raw": {
+    "id": "moment_001",
+    "captured_at": "2026-05-04T18:42:00.000Z",
+    "caption": "Late afternoon walk by the water.",
+    "latitude": 37.8078,
+    "longitude": -122.4177,
+    "place_label": "Waterfront trail",
+    "media_url": "https://example.invalid/media/looki/moment_001.jpg"
+  },
+  "expected_records": [
+    {
+      "source_key": "looki_moments",
+      "category": "photo",
+      "summary": "Late afternoon walk by the water."
+    }
+  ]
+}

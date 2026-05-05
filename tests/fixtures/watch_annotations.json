@@ -1,0 +1,25 @@
+{
+  "_comment": "Public example fixture for Watch annotations",
+  "_pattern": "push",
+  "_schema_kind": "watch_annotations.event.v1",
+  "raw": {
+    "id": "11111111-1111-1111-1111-111111111111",
+    "produced_at": "2026-05-04T12:00:00.000Z",
+    "payload": {
+      "kind": "watch_annotations.event.v1",
+      "note_text": "Felt focused during the walk to lunch.",
+      "recorded_at": "2026-05-04T11:57:00.000Z",
+      "latitude": 37.7749,
+      "longitude": -122.4194,
+      "place_label": "Downtown walk",
+      "tags": ["mood", "walking"]
+    }
+  },
+  "expected_records": [
+    {
+      "kind": "watch_annotations.event.v1",
+      "category_hint": "text+location",
+      "source_key": "watch_annotations"
+    }
+  ]
+}

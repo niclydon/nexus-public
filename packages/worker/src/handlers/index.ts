@@ -100,6 +100,7 @@ import { handleSocialEngagement } from './social-engagement.js';
 import { handleLookiRewind } from './looki-rewind.js';
 import { handleLookiRealtimePollWithChain as handleLookiRealtimePoll } from './looki-realtime-poll.js';
 import { handleLookiDailySync } from './looki-daily-sync.js';
+import { handleLookiMomentsSync } from './looki_moments-sync.js';
 
 // Data hygiene + merge candidates + voice-print enrichment + person photos
 import { handleDataHygiene } from './data-hygiene.js';
@@ -220,6 +221,7 @@ export function registerAllHandlers(): void {
   registerJobHandler('looki-rewind', handleLookiRewind);
   registerJobHandler('looki-realtime-poll', handleLookiRealtimePoll);
   registerJobHandler('looki-daily-sync', handleLookiDailySync);
+  registerJobHandler('looki_moments-sync', handleLookiMomentsSync);
 
   // Cross-source correlation, mood proxy, life transitions, photo social
   registerJobHandler('cross-correlate', handleCrossCorrelate);

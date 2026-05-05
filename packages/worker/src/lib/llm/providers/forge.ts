@@ -1,11 +1,11 @@
 /**
  * Forge local LLM provider adapter.
  *
- * Calls the Forge unified LLM API running on Dev-Server (gateway).
- * Forge routes requests to Primary-Server (GPU compute node) for heavy
- * inference and falls back to Dev-Server MLX for Apple Silicon-specific tasks.
+ * Calls the Forge unified LLM API through a gateway.
+ * Forge can route requests to a heavier compute node for larger models and
+ * fall back to alternate backends when configured.
  * Uses the OpenAI SDK since Forge exposes OpenAI-compatible endpoints.
- * Zero cost -- all inference runs on local home lab hardware.
+ * Zero direct API cost when Forge is backed by self-hosted inference.
  *
  * Uses streaming to avoid Cloudflare's 100s idle timeout — tokens flow
  * continuously, keeping the connection alive for long generations.
@@ -33,6 +33,59 @@ export interface LLMResponse {
   outputTokens: number;
 }
 
+function buildChatBody(params: {
+  model: string;
+  systemPrompt: string;
+  userMessage: string;
+  maxTokens: number;
+  stream: boolean;
+}): string {
+  return JSON.stringify({
+    model: params.model,
+    max_tokens: params.maxTokens,
+    messages: [
+      { role: 'system', content: params.systemPrompt },
+      { role: 'user', content: params.userMessage },
+    ],
+    stream: params.stream,
+    ...(params.stream ? { stream_options: { include_usage: true } } : {}),
+    chat_template_kwargs: { enable_thinking: false },
+  });
+}
+
+async function callForgeNonStreaming(params: {
+  model: string;
+  systemPrompt: string;
+  userMessage: string;
+  maxTokens: number;
+  signal?: AbortSignal;
+}): Promise<LLMResponse> {
+  const baseURL = process.env.FORGE_BASE_URL!;
+  const apiKey = process.env.FORGE_API_KEY!;
+  const resp = await fetch(`${baseURL}/chat/completions`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+    body: buildChatBody({ ...params, stream: false }),
+    signal: params.signal,
+  });
+
+  if (!resp.ok) {
+    const errText = await resp.text().catch(() => '');
+    throw new Error(`Forge non-streaming retry ${resp.status}: ${errText.slice(0, 200)}`);
+  }
+
+  const data = await resp.json() as {
+    choices?: Array<{ message?: { content?: string | null } }>;
+    usage?: { prompt_tokens?: number; completion_tokens?: number };
+  };
+  const text = data.choices?.[0]?.message?.content ?? '';
+  return {
+    text,
+    inputTokens: data.usage?.prompt_tokens ?? 0,
+    outputTokens: data.usage?.completion_tokens ?? 0,
+  };
+}
+
 export async function callForge(params: {
   model: string;
   systemPrompt: string;
@@ -46,17 +99,7 @@ export async function callForge(params: {
   // not just orphaned by Promise.race.
   // Build request body with chat_template_kwargs to disable Qwen thinking mode.
   // Use raw fetch instead of OpenAI SDK to include the llama-server extension field.
-  const body = JSON.stringify({
-    model: params.model,
-    max_tokens: params.maxTokens,
-    messages: [
-      { role: 'system', content: params.systemPrompt },
-      { role: 'user', content: params.userMessage },
-    ],
-    stream: true,
-    stream_options: { include_usage: true },
-    chat_template_kwargs: { enable_thinking: false },
-  });
+  const body = buildChatBody({ ...params, stream: true });
 
   const baseURL = process.env.FORGE_BASE_URL!;
   const apiKey = process.env.FORGE_API_KEY!;
@@ -106,10 +149,13 @@ export async function callForge(params: {
     }
   }
 
-  // Guard: if Forge returned empty content, throw explicitly so the circuit breaker
-  // gets actionable context instead of silently propagating an empty string.
+  // Some Forge-compatible backends occasionally finish a streaming response with
+  // usage metadata but no content. Retry once non-streaming before letting the
+  // router fall through to a different provider.
   if (!text && (params.systemPrompt.length + params.userMessage.length) > 0) {
-    throw new Error('Forge returned empty content (possible thinking mode issue)');
+    const retry = await callForgeNonStreaming(params);
+    if (retry.text) return retry;
+    throw new Error('Forge returned empty content from streaming and non-streaming retries');
   }
 
   // Estimate tokens if llama-server didn't report usage stats (returns 0 sometimes)

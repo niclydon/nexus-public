@@ -1,0 +1,57 @@
+version: 1
+sources:
+  - source_key: watch_annotations
+    display_name: Watch annotations
+    ingestion_pattern: push
+    ingestion_mode: scheduled
+    category: personal
+    content_types:
+      - text
+      - location
+    bronze_table: raw_ingest_watch_annotations
+    silver_view: aurora_silver_watch_annotations
+    handler_path: null
+    import_script_path: null
+    payload_schema_doc_path: docs/source-schemas/watch_annotations.md
+    smoke_fixture_path: tests/fixtures/watch_annotations.json
+    lifecycle_state: active
+    notes: |
+      Example push-style source for short text/location annotations captured on a wearable or phone.
+      Intended as a public onboarding example: small envelope, explicit schema, no private environment assumptions.
+  - source_key: looki_moments
+    display_name: Looki moments
+    ingestion_pattern: pull
+    ingestion_mode: realtime
+    category: personal
+    content_types:
+      - text
+      - location
+      - photo
+    bronze_table: aurora_raw_looki_moments
+    silver_view: aurora_silver_looki_moments
+    handler_path: packages/worker/src/handlers/looki_moments-sync.ts
+    import_script_path: null
+    payload_schema_doc_path: null
+    smoke_fixture_path: tests/fixtures/looki_moments.json
+    lifecycle_state: active
+    notes: |
+      Example pull-style source representing ambient or capture-driven moments with lightweight text, image, and location context.
+      Included because it is architecturally distinctive, while remaining fully sanitized in the public repo.
+  - source_key: claude_export
+    display_name: Claude data export
+    ingestion_pattern: manual_archive
+    ingestion_mode: manual
+    category: personal
+    content_types:
+      - text
+      - document
+    bronze_table: aurora_raw_claude_export
+    silver_view: aurora_silver_claude_export
+    handler_path: null
+    import_script_path: scripts/ingest-claude_export.ts
+    payload_schema_doc_path: null
+    smoke_fixture_path: tests/fixtures/claude_export.json
+    lifecycle_state: active
+    notes: |
+      Example manual-archive source for user-requested Claude exports downloaded from Anthropic.
+      See docs/source-exports/claude-data-export.md for the official export flow and public implementation notes.

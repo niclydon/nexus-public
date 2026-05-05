@@ -21,7 +21,8 @@
     "dev:worker": "npm run dev -w @nexus/worker",
     "clean": "npm run clean --workspaces",
     "typecheck": "tsc --build",
-    "migrate": "npm run migrate -w @nexus/core"
+    "migrate": "npm run migrate -w @nexus/core",
+    "add:source": "node scripts/add-source.mjs"
   },
   "engines": {
     "node": ">=20"

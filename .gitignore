@@ -1,11 +1,14 @@
 node_modules/
 dist/
+.worktrees/
 .env
 .env.local
 .env.*.local
+.env.bak*
 *.tsbuildinfo
 .DS_Store
 *.p8
+AuthKey_*
 *.zip
 *.csv
 *.db
@@ -14,6 +17,13 @@ dist/
 data/
 backups/
 tmp-*.sql
+.remember/
+.codex
+.codex/
+.claude/
+.wrangler/
+/home/
+/~/
 
 # Internal security audit reports — not for public distribution
 security_*.md

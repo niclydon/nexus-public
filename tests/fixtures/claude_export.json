@@ -1,0 +1,36 @@
+{
+  "_comment": "Illustrative public fixture for a Claude export archive; not an authoritative Anthropic file contract.",
+  "_pattern": "manual_archive",
+  "_schema_kind": null,
+  "raw": {
+    "bundle_hint": "claude-export.zip",
+    "files": [
+      "account.json",
+      "conversations.json"
+    ],
+    "conversations": [
+      {
+        "id": "conversation_001",
+        "title": "Ideas for a walking journal app",
+        "created_at": "2026-05-01T14:12:00.000Z",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Give me three names for a walking journal app."
+          },
+          {
+            "role": "assistant",
+            "content": "Here are three options with slightly different tones."
+          }
+        ]
+      }
+    ]
+  },
+  "expected_records": [
+    {
+      "source_key": "claude_export",
+      "category_hint": "document+text",
+      "object_hint": "conversation archive"
+    }
+  ]
+}

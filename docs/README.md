@@ -10,6 +10,10 @@
 | `mcp-client-architecture.md` | MCP client integration architecture |
 | `api-poll-pipeline-design.md` | API polling pipeline design |
 | `agent-roadmap.md` | Agent consolidation roadmap and design decisions |
+| `agent-doctrine.md` | Current agent/runtime boundary: bounded reasoning over deterministic systems |
+| `dispatch-spec.md` | Delivery-surface contract and lane definitions |
+| `adding-a-source.md` | Public runbook for source onboarding |
+| `sources.yaml` | Source manifest seed for public documentation and future onboarding |
 
 ## Agent Persona Evolution
 

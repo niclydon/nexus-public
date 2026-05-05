@@ -107,8 +107,10 @@ export async function deliverReport(params: {
           break;
         }
         case 'report':
-          await insertReport(title, body, category ?? 'general', reportType, metadata);
           deliveredVia.push(`report:${method.label}`);
+          break;
+        case 'desk':
+          deliveredVia.push(`desk:${method.label}`);
           break;
         default:
           logger.logMinimal(`Unknown channel: ${method.channel}`);
