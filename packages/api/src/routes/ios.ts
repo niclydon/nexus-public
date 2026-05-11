@@ -12,7 +12,7 @@
  * Auth: Bearer token from iOS Keychain (NEXUS_SYSTEM_KEY or user token).
  */
 import { Router, type Request, type Response } from 'express';
-import { query, createLogger } from '@nexus/core';
+import { query, createLogger, langfuseObservability } from '@nexus/core';
 
 const router = Router();
 const logger = createLogger('api/ios');
@@ -142,7 +142,13 @@ Only use <agent_task> when actual tool execution is needed. Pure conversation, q
       })),
     ];
 
-    const llmResponse = await fetch(`${forgeUrl}/v1/chat/completions`, {
+    const forgeChatUrl = `${forgeUrl}/v1/chat/completions`;
+    const llmResponse = await langfuseObservability.traceForgeFetch({
+      name: 'nexus-public.api.ios.chat',
+      url: forgeChatUrl,
+      model: 'qwen3-next-chat-80b',
+      input: { conversation_id: convId, message_count: messages.length },
+    }, () => fetch(forgeChatUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -156,7 +162,7 @@ Only use <agent_task> when actual tool execution is needed. Pure conversation, q
         stream: true,
         chat_template_kwargs: { enable_thinking: false },
       }),
-    });
+    }));
 
     if (!llmResponse.ok || !llmResponse.body) {
       const errText = await llmResponse.text();

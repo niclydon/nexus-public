@@ -19,6 +19,7 @@ export * as evalScorer from './services/eval-scorer.js';
 export * as entityMerge from './services/entity-merge.js';
 export * as semanticSearch from './services/semantic-search.js';
 export * as platformMode from './services/platform-mode.js';
+export * as langfuseObservability from './services/langfuse-client.js';
 
 // Types
 export type {

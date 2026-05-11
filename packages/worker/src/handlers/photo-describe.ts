@@ -14,7 +14,7 @@
  * S3 full-res path also NULLs full_image_s3_key after processing.
  */
 import type { TempoJob } from '../job-worker.js';
-import { getPool, createLogger } from '@nexus/core';
+import { getPool, createLogger, langfuseObservability } from '@nexus/core';
 import { logEvent } from '../lib/event-log.js';
 import { jobLog } from '../lib/job-log.js';
 import { ingestFact, type FactInput, type EntityHint } from '../lib/knowledge.js';
@@ -360,7 +360,19 @@ async function describeImage(
   const base64Data = imageBuffer.toString('base64');
   const stopTimer = logger.time(`forge-describe-${photo.local_identifier}`);
 
-  const response = await fetch(`${FORGE_URL}/v1/describe`, {
+  const forgeDescribeUrl = `${FORGE_URL}/v1/describe`;
+  const response = await langfuseObservability.traceForgeFetch({
+    name: 'nexus-public.worker.photo-describe',
+    url: forgeDescribeUrl,
+    model: 'describe',
+    input: {
+      local_identifier_chars: photo.local_identifier.length,
+      image_bytes: imageBuffer.length,
+      prompt_chars: fullPrompt.length,
+      people_count: photo.people?.length ?? 0,
+    },
+    metadata: { media_type: photo.media_type },
+  }, () => fetch(forgeDescribeUrl, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -375,7 +387,7 @@ async function describeImage(
       temperature: 0.3,
     }),
     signal: AbortSignal.timeout(120_000),
-  });
+  }));
 
   stopTimer();
 

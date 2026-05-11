@@ -2,6 +2,7 @@
  * Google Gemini provider adapter.
  */
 import { GoogleGenAI } from '@google/genai';
+import { observedLlmCall } from '../observability.js';
 
 let genai: GoogleGenAI | null = null;
 
@@ -29,15 +30,24 @@ export async function callGemini(params: {
 }): Promise<LLMResponse> {
   const client = getClient();
 
-  const response = await client.models.generateContent({
-    model: params.model,
-    contents: params.userMessage,
-    config: {
-      systemInstruction: params.systemPrompt,
-      maxOutputTokens: params.maxTokens,
-      abortSignal: params.signal,
+  const response = await observedLlmCall(
+    {
+      name: 'nexus-public.provider.google',
+      provider: 'google',
+      model: params.model,
+      systemPrompt: params.systemPrompt,
+      userMessage: params.userMessage,
     },
-  });
+    () => client.models.generateContent({
+      model: params.model,
+      contents: params.userMessage,
+      config: {
+        systemInstruction: params.systemPrompt,
+        maxOutputTokens: params.maxTokens,
+        abortSignal: params.signal,
+      },
+    }),
+  );
 
   const text = response.text ?? '';
   const usage = response.usageMetadata;

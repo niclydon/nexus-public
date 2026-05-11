@@ -17,6 +17,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { execSync, spawnSync } from 'child_process';
 import Anthropic from '@anthropic-ai/sdk';
+import { observedScriptLlm } from './lib/langfuse-script.js';
 
 const anthropic = process.env.ANTHROPIC_API_KEY ? new Anthropic() : null;
 const OPUS_MODEL = 'claude-opus-4-6';
@@ -279,11 +280,20 @@ Reply with ONE JSON object, no prose, no markdown fences:
 `;
 
   console.log('    → calling Opus for sanitization');
-  const response = await anthropic.messages.create({
-    model: OPUS_MODEL,
-    max_tokens: 4096,
-    messages: [{ role: 'user', content: prompt }],
-  });
+  const response = await observedScriptLlm(
+    {
+      name: 'nexus-public.script.build-showcase-data.sanitize',
+      provider: 'anthropic',
+      model: OPUS_MODEL,
+      userMessage: prompt,
+      metadata: { candidate_count: candidates.length, recent_count: recent.length },
+    },
+    () => anthropic.messages.create({
+      model: OPUS_MODEL,
+      max_tokens: 4096,
+      messages: [{ role: 'user', content: prompt }],
+    }),
+  );
 
   const text = response.content
     .filter((b: any) => b.type === 'text')

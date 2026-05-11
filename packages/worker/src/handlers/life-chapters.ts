@@ -17,6 +17,7 @@ import { getPool, createLogger } from '@nexus/core';
 import { jobLog } from '../lib/job-log.js';
 import OpenAI from 'openai';
 import type { Pool } from 'pg';
+import { observedLlmCall } from '../lib/llm/observability.js';
 
 const logger = createLogger('life-chapters');
 
@@ -459,17 +460,20 @@ async function discoverChapters(llm: OpenAI, overview: string): Promise<ChapterO
   logger.logVerbose('Pass 1: discovering chapter boundaries');
   const stopTimer = logger.time('pass1-discover');
 
-  const completion = await llm.chat.completions.create({
-    model: 'llama-3.3-70b',
-    messages: [
-      { role: 'system', content: DISCOVERY_SYSTEM },
-      { role: 'user', content: overview },
-    ],
-    temperature: 0.7,
-    max_tokens: 4096,
-    // @ts-expect-error — Forge-specific parameter to disable Qwen3 thinking
-    chat_template_kwargs: { enable_thinking: false },
-  });
+  const completion = await observedLlmCall(
+    { name: 'nexus-public.life-chapters.discovery', provider: 'forge', model: 'llama-3.3-70b', systemPrompt: DISCOVERY_SYSTEM, userMessage: overview },
+    () => llm.chat.completions.create({
+      model: 'llama-3.3-70b',
+      messages: [
+        { role: 'system', content: DISCOVERY_SYSTEM },
+        { role: 'user', content: overview },
+      ],
+      temperature: 0.7,
+      max_tokens: 4096,
+      stream: false,
+      chat_template_kwargs: { enable_thinking: false },
+    } as any),
+  ) as { choices: Array<{ message?: { content?: string | null } }> };
 
   const raw = completion.choices[0]?.message?.content ?? '';
   stopTimer();
@@ -501,17 +505,20 @@ async function generateNarrative(llm: OpenAI, outline: ChapterOutline, chapterDa
     `Subtitle: ${outline.subtitle}\n\n` +
     `## Data for this period:\n\n${chapterData}`;
 
-  const completion = await llm.chat.completions.create({
-    model: 'llama-3.3-70b',
-    messages: [
-      { role: 'system', content: NARRATIVE_SYSTEM },
-      { role: 'user', content: userMessage },
-    ],
-    temperature: 0.7,
-    max_tokens: 2048,
-    // @ts-expect-error — Forge-specific parameter to disable Qwen3 thinking
-    chat_template_kwargs: { enable_thinking: false },
-  });
+  const completion = await observedLlmCall(
+    { name: 'nexus-public.life-chapters.narrative', provider: 'forge', model: 'llama-3.3-70b', systemPrompt: NARRATIVE_SYSTEM, userMessage, metadata: { chapter_title: outline.title } },
+    () => llm.chat.completions.create({
+      model: 'llama-3.3-70b',
+      messages: [
+        { role: 'system', content: NARRATIVE_SYSTEM },
+        { role: 'user', content: userMessage },
+      ],
+      temperature: 0.7,
+      max_tokens: 2048,
+      stream: false,
+      chat_template_kwargs: { enable_thinking: false },
+    } as any),
+  ) as { choices: Array<{ message?: { content?: string | null } }> };
 
   const raw = completion.choices[0]?.message?.content ?? '';
   stopTimer();

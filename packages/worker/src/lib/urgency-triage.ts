@@ -5,7 +5,7 @@
  * to flag anything needing immediate attention. Single batched Forge call,
  * non-blocking on failure.
  */
-import { getPool, createLogger } from '@nexus/core';
+import { getPool, createLogger, langfuseObservability } from '@nexus/core';
 
 const logger = createLogger('urgency-triage');
 
@@ -71,7 +71,14 @@ export async function triageUrgency(
   const stop = logger.time('urgency-triage');
 
   try {
-    const response = await fetch(`${forgeUrl}/v1/chat/completions`, {
+    const forgeChatUrl = `${forgeUrl}/v1/chat/completions`;
+    const response = await langfuseObservability.traceForgeFetch({
+      name: 'nexus-public.worker.urgency-triage',
+      url: forgeChatUrl,
+      model: 'qwen3-next-chat-80b',
+      input: { item_count: items.length, summaries_chars: summaries.length },
+      metadata: { insight_category: config.insightCategory, confidence },
+    }, () => fetch(forgeChatUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -88,7 +95,7 @@ export async function triageUrgency(
         chat_template_kwargs: { enable_thinking: false },
       }),
       signal: AbortSignal.timeout(timeoutMs),
-    });
+    }));
 
     stop();
 

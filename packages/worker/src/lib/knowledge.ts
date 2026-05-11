@@ -14,6 +14,7 @@
  */
 import { getPool, createLogger, platformMode } from '@nexus/core';
 import type { PoolClient } from 'pg';
+import { observedLlmCall } from './llm/observability.js';
 
 const logger = createLogger('knowledge');
 
@@ -246,18 +247,27 @@ async function generateOpenAIEmbedding(text: string, config: EmbeddingConfig): P
   }
 
   try {
-    const response = await fetch('https://api.openai.com/v1/embeddings', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
+    const response = await observedLlmCall(
+      {
+        name: 'nexus-public.knowledge.embedding.openai',
+        provider: 'openai',
         model: config.model,
-        input: text,
-        dimensions: config.dimensions,
+        userMessage: text,
+        metadata: { dimensions: config.dimensions, privacy: 'lengths-only' },
+      },
+      () => fetch('https://api.openai.com/v1/embeddings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: config.model,
+          input: text,
+          dimensions: config.dimensions,
+        }),
       }),
-    });
+    );
 
     if (!response.ok) {
       const body = await response.text();

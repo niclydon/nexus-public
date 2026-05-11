@@ -2,6 +2,7 @@
  * Anthropic Claude provider adapter.
  */
 import Anthropic from '@anthropic-ai/sdk';
+import { observedLlmCall } from '../observability.js';
 
 let client: Anthropic | null = null;
 
@@ -37,12 +38,21 @@ export async function callAnthropic(params: {
   maxTokens: number;
   signal?: AbortSignal;
 }): Promise<LLMResponse> {
-  const response = await getClient().messages.create({
-    model: params.model,
-    max_tokens: params.maxTokens,
-    system: params.systemPrompt,
-    messages: [{ role: 'user', content: params.userMessage }],
-  }, { signal: params.signal });
+  const response = await observedLlmCall(
+    {
+      name: 'nexus-public.provider.anthropic',
+      provider: 'anthropic',
+      model: params.model,
+      systemPrompt: params.systemPrompt,
+      userMessage: params.userMessage,
+    },
+    () => getClient().messages.create({
+      model: params.model,
+      max_tokens: params.maxTokens,
+      system: params.systemPrompt,
+      messages: [{ role: 'user', content: params.userMessage }],
+    }, { signal: params.signal }),
+  );
 
   const text = response.content
     .filter((b): b is Anthropic.TextBlock => b.type === 'text')

@@ -9,7 +9,7 @@
  * the next batch so a crash or timeout loses at most one batch.
  */
 import type { TempoJob } from '../job-worker.js';
-import { getPool, platformMode } from '@nexus/core';
+import { getPool, platformMode, langfuseObservability } from '@nexus/core';
 import { jobLog } from '../lib/job-log.js';
 
 const LOCAL_EMBED_URL = process.env.FORGE_BASE_URL
@@ -247,12 +247,19 @@ async function embedBatch(texts: string[]): Promise<number[][] | null> {
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
     if (EMBED_API_KEY) headers['Authorization'] = `Bearer ${EMBED_API_KEY}`;
     const prefixed = texts.map((t) => `search_document: ${t}`);
-    const response = await fetch(`${LOCAL_EMBED_URL}/v1/embeddings`, {
+    const forgeEmbedUrl = `${LOCAL_EMBED_URL}/v1/embeddings`;
+    const response = await langfuseObservability.traceForgeFetch({
+      name: 'nexus-public.worker.embed-backfill',
+      url: forgeEmbedUrl,
+      model: 'qwen3-embed-8b',
+      input: { batch_size: texts.length },
+      metadata: { dimensions: 4096 },
+    }, () => fetch(forgeEmbedUrl, {
       method: 'POST',
       headers,
       body: JSON.stringify({ input: prefixed, model: 'qwen3-embed-8b' }),
       signal: AbortSignal.timeout(120_000),
-    });
+    }));
     if (!response.ok) {
       console.error(`[embed-backfill] Forge error ${response.status}`);
       return null;

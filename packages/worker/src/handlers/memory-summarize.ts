@@ -12,6 +12,7 @@
 import type { TempoJob } from '../job-worker.js';
 import { getPool, createLogger } from '@nexus/core';
 import OpenAI from 'openai';
+import { observedLlmCall } from '../lib/llm/observability.js';
 
 const logger = createLogger('memory-summarize');
 
@@ -109,17 +110,21 @@ export async function handleMemorySummarize(job: TempoJob): Promise<void> {
     const batchText = batch.map((e) => `- ${e.key}: ${e.value}`).join('\n');
 
     try {
-      const response = await llm.chat.completions.create({
-        model: 'qwen3-next-chat-80b',
-        messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
-          { role: 'user', content: `Category: ${category}\n\n${batchText}` },
-        ],
-        temperature: 0.1,
-        max_tokens: 2000,
-        // @ts-expect-error — Forge-specific parameter to disable Qwen3 thinking
-        chat_template_kwargs: { enable_thinking: false },
-      });
+      const userMessage = `Category: ${category}\n\n${batchText}`;
+      const response = await observedLlmCall(
+        { name: 'nexus-public.memory-summarize', provider: 'forge', model: 'qwen3-next-chat-80b', systemPrompt: SYSTEM_PROMPT, userMessage, metadata: { category, batch_size: batch.length } },
+        () => llm.chat.completions.create({
+          model: 'qwen3-next-chat-80b',
+          messages: [
+            { role: 'system', content: SYSTEM_PROMPT },
+            { role: 'user', content: userMessage },
+          ],
+          temperature: 0.1,
+          max_tokens: 2000,
+          stream: false,
+          chat_template_kwargs: { enable_thinking: false },
+        } as any),
+      ) as { choices: Array<{ message?: { content?: string | null } }> };
 
       const text = response.choices[0]?.message?.content?.trim() ?? '';
 
