@@ -1,5 +1,6 @@
 import { query } from '../db.js';
 import { createLogger } from '../logger.js';
+import { traceForgeFetch } from './langfuse-client.js';
 
 const logger = createLogger('eval-scorer');
 
@@ -124,7 +125,14 @@ export async function scoreDecision(
   const url = forgeUrl ?? process.env.FORGE_URL ?? 'http://localhost:8088/v1';
 
   try {
-    const resp = await fetch(`${url}/chat/completions`, {
+    const chatUrl = `${url}/chat/completions`;
+    const resp = await traceForgeFetch({
+      name: 'nexus-public.core.eval-scorer',
+      url: chatUrl,
+      model: 'qwen3-next-chat-80b',
+      input: { scorer, prompt_chars: prompt.length, user_message_chars: userMessage.length },
+      metadata: { max_tokens: 200, temperature: 0.1 },
+    }, () => fetch(chatUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -137,7 +145,7 @@ export async function scoreDecision(
         max_tokens: 200,
       }),
       signal: AbortSignal.timeout(30_000),
-    });
+    }));
 
     if (!resp.ok) {
       logger.logMinimal('Scoring LLM call failed:', resp.status, resp.statusText);

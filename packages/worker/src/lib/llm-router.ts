@@ -1,4 +1,4 @@
-import { createLogger } from '@nexus/core';
+import { createLogger, langfuseObservability } from '@nexus/core';
 
 const logger = createLogger('llm-router');
 
@@ -62,11 +62,23 @@ export async function callLlm(req: LlmRequest): Promise<LlmResponse | null> {
     if (forgeKey) headers['Authorization'] = `Bearer ${forgeKey}`;
     headers['X-Agent-Id'] = req.agentId;
 
-    const response = await fetch(url, {
+    const response = await langfuseObservability.traceForgeFetch({
+      name: 'nexus-public.worker.llm-router',
+      url,
+      model,
+      input: {
+        agent_id: req.agentId,
+        system_prompt_chars: req.systemPrompt.length,
+        user_message_chars: req.userMessage.length,
+        message_count: messages.length,
+        history_count: req.history?.length ?? 0,
+      },
+      metadata: { max_tokens: maxTokens, temperature },
+    }, () => fetch(url, {
       method: 'POST',
       headers,
       body: JSON.stringify(body),
-    });
+    }));
 
     stop();
 

@@ -24,6 +24,7 @@ export async function traceForgeFetch<T extends Response>(
     model: string;
     input?: Record<string, unknown>;
     metadata?: Record<string, unknown>;
+    summarizeResponse?: (response: T) => Promise<Record<string, unknown>>;
   },
   fn: () => Promise<T>,
 ): Promise<T> {
@@ -40,7 +41,9 @@ export async function traceForgeFetch<T extends Response>(
   });
   try {
     const response = await fn();
-    const output = { ok: response.ok, status: response.status };
+    const output = params.summarizeResponse
+      ? await params.summarizeResponse(response)
+      : await summarizeResponse(response);
     generation?.end({ output });
     trace?.update({ output });
     lf?.flushAsync();
@@ -50,4 +53,34 @@ export async function traceForgeFetch<T extends Response>(
     lf?.flushAsync();
     throw err;
   }
+}
+
+async function summarizeResponse(response: Response): Promise<Record<string, unknown>> {
+  const output: Record<string, unknown> = { ok: response.ok, status: response.status };
+  try {
+    const data = await response.clone().json() as {
+      choices?: Array<{ message?: { content?: string | null } }>;
+      data?: Array<{ embedding?: number[] }>;
+      embeddings?: number[][];
+      results?: unknown[];
+      usage?: Record<string, unknown>;
+    };
+    const text = data.choices?.[0]?.message?.content;
+    if (typeof text === 'string') output.content_chars = text.length;
+    if (Array.isArray(data.data)) {
+      output.embedding_count = data.data.length;
+      output.dimensions = data.data[0]?.embedding?.length ?? 0;
+      output.vector_contents = 'suppressed';
+    }
+    if (Array.isArray(data.embeddings)) {
+      output.embedding_count = data.embeddings.length;
+      output.dimensions = data.embeddings[0]?.length ?? 0;
+      output.vector_contents = 'suppressed';
+    }
+    if (Array.isArray(data.results)) output.result_count = data.results.length;
+    if (data.usage) output.usage = data.usage;
+  } catch {
+    // Non-JSON responses are still audited by status.
+  }
+  return output;
 }

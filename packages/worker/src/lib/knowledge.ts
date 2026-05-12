@@ -12,7 +12,7 @@
  *   searchFacts()      — Semantic search across all facts
  *   getEntityFacts()   — Get all facts for an entity
  */
-import { getPool, createLogger, platformMode } from '@nexus/core';
+import { getPool, createLogger, platformMode, langfuseObservability } from '@nexus/core';
 import type { PoolClient } from 'pg';
 import { observedLlmCall } from './llm/observability.js';
 
@@ -182,12 +182,19 @@ async function generateLocalEmbedding(text: string, config: EmbeddingConfig): Pr
   try {
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
     if (EMBED_API_KEY) headers['Authorization'] = `Bearer ${EMBED_API_KEY}`;
-    const response = await fetch(`${LOCAL_EMBED_URL}/embed`, {
+    const localEmbedUrl = `${LOCAL_EMBED_URL}/embed`;
+    const response = await langfuseObservability.traceForgeFetch({
+      name: 'nexus-public.knowledge.embedding.local',
+      url: localEmbedUrl,
+      model: config.model,
+      input: { input_count: 1, total_input_chars: text.length },
+      metadata: { dimensions: config.dimensions, vector_contents: 'suppressed' },
+    }, () => fetch(localEmbedUrl, {
       method: 'POST',
       headers,
       body: JSON.stringify({ texts: [text] }),
       signal: AbortSignal.timeout(60_000),
-    });
+    }));
 
     if (!response.ok) {
       const body = await response.text();
@@ -214,15 +221,24 @@ async function generateGoogleEmbedding(text: string, config: EmbeddingConfig): P
 
   try {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${config.model}:embedContent?key=${apiKey}`;
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: `models/${config.model}`,
-        content: { parts: [{ text }] },
-        outputDimensionality: config.dimensions,
+    const response = await observedLlmCall(
+      {
+        name: 'nexus-public.knowledge.embedding.google',
+        provider: 'google',
+        model: config.model,
+        userMessage: text,
+        metadata: { dimensions: config.dimensions, vector_contents: 'suppressed' },
+      },
+      () => fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: `models/${config.model}`,
+          content: { parts: [{ text }] },
+          outputDimensionality: config.dimensions,
+        }),
       }),
-    });
+    );
 
     if (!response.ok) {
       const body = await response.text();

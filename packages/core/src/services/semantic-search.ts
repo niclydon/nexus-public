@@ -1,5 +1,6 @@
 import { getPool } from '../db.js';
 import { createLogger } from '../logger.js';
+import { traceForgeFetch } from './langfuse-client.js';
 
 const logger = createLogger('semantic-search');
 
@@ -340,12 +341,19 @@ function forgeHeaders(): Record<string, string> {
 }
 
 async function getEmbedding(text: string): Promise<number[]> {
-  const res = await fetch(forgeEmbedUrl(), {
+  const url = forgeEmbedUrl();
+  const res = await traceForgeFetch({
+    name: 'nexus-public.core.semantic-search.embedding',
+    url,
+    model: 'qwen3-embed-8b',
+    input: { input_count: 1, total_input_chars: text.length },
+    metadata: { vector_contents: 'suppressed' },
+  }, () => fetch(url, {
     method: 'POST',
     headers: forgeHeaders(),
     body: JSON.stringify({ input: [`search_document: ${text}`], model: 'qwen3-embed-8b' }),
     signal: AbortSignal.timeout(10_000),
-  });
+  }));
   if (!res.ok) {
     const body = await res.text().catch(() => '');
     throw new Error(`Forge embed failed (${res.status}): ${body.slice(0, 200)}`);
@@ -360,12 +368,19 @@ async function rerank(
   query: string,
   documents: string[],
 ): Promise<{ index: number; relevance_score: number }[]> {
-  const res = await fetch(forgeRerankUrl(), {
+  const url = forgeRerankUrl();
+  const res = await traceForgeFetch({
+    name: 'nexus-public.core.semantic-search.rerank',
+    url,
+    model: 'forge-rerank',
+    input: { query_chars: query.length, document_count: documents.length },
+    metadata: { document_contents: 'suppressed' },
+  }, () => fetch(url, {
     method: 'POST',
     headers: forgeHeaders(),
     body: JSON.stringify({ query, documents }),
     signal: AbortSignal.timeout(30_000),
-  });
+  }));
   if (!res.ok) {
     const body = await res.text().catch(() => '');
     throw new Error(`Forge rerank failed (${res.status}): ${body.slice(0, 200)}`);

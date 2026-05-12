@@ -14,7 +14,7 @@
  * Batch size: 20 per job, self-chains if more remain.
  */
 import type { TempoJob } from '../job-worker.js';
-import { getPool, createLogger } from '@nexus/core';
+import { getPool, createLogger, langfuseObservability } from '@nexus/core';
 import { callMcpTool } from '../lib/mcp-client-manager.js';
 
 const logger = createLogger('photo-describe-mcp');
@@ -214,7 +214,17 @@ async function describeViaVlm(uuid: string): Promise<string | null> {
   }
 
   try {
-    const response = await fetch(VLM_URL, {
+    const response = await langfuseObservability.traceForgeFetch({
+      name: 'nexus-public.worker.photo-describe-mcp.vlm',
+      url: VLM_URL,
+      model: 'qwen3-vl-32b',
+      input: {
+        uuid,
+        image_bytes_base64: base64Img.length,
+        prompt_chars: 'Describe this photo in 2-3 sentences. Include people, setting, activity, and mood.'.length,
+      },
+      metadata: { image_contents: 'suppressed' },
+    }, () => fetch(VLM_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -229,7 +239,7 @@ async function describeViaVlm(uuid: string): Promise<string | null> {
         max_tokens: 200,
       }),
       signal: AbortSignal.timeout(VLM_TIMEOUT_MS),
-    });
+    }));
 
     if (!response.ok) {
       logger.logVerbose('VLM error:', response.status);

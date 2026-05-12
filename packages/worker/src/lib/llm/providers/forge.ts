@@ -11,6 +11,7 @@
  * continuously, keeping the connection alive for long generations.
  */
 import OpenAI from 'openai';
+import { observedLlmCall } from '../observability.js';
 
 let client: OpenAI | null = null;
 
@@ -86,7 +87,7 @@ async function callForgeNonStreaming(params: {
   };
 }
 
-export async function callForge(params: {
+async function callForgeStreaming(params: {
   model: string;
   systemPrompt: string;
   userMessage: string;
@@ -167,4 +168,34 @@ export async function callForge(params: {
   }
 
   return { text, inputTokens, outputTokens };
+}
+
+export async function callForge(params: {
+  model: string;
+  systemPrompt: string;
+  userMessage: string;
+  maxTokens: number;
+  signal?: AbortSignal;
+}): Promise<LLMResponse> {
+  return observedLlmCall(
+    {
+      name: 'nexus-public.provider.forge',
+      provider: 'forge',
+      model: params.model,
+      systemPrompt: params.systemPrompt,
+      userMessage: params.userMessage,
+      metadata: { max_tokens: params.maxTokens, stream: true },
+      summarize: (result) => ({
+        content_chars: result.text.length,
+        input_tokens: result.inputTokens,
+        output_tokens: result.outputTokens,
+      }),
+      usage: (result) => ({
+        prompt_tokens: result.inputTokens,
+        completion_tokens: result.outputTokens,
+        total_tokens: result.inputTokens + result.outputTokens,
+      }),
+    },
+    () => callForgeStreaming(params),
+  );
 }

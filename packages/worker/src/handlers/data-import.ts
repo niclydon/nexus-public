@@ -10,7 +10,7 @@
  * After processing, saves schema for future recognition and cleans up S3.
  */
 import type { TempoJob } from '../job-worker.js';
-import { getPool, createLogger } from '@nexus/core';
+import { getPool, createLogger, langfuseObservability } from '@nexus/core';
 import { logEvent } from '../lib/event-log.js';
 import { routeRequest } from '../lib/llm/index.js';
 import { S3Client, GetObjectCommand, DeleteObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
@@ -392,7 +392,27 @@ async function transcribeWithForge(s3Key: string, filename: string, _importId: s
   logger.log(`Forge transcribe: ${filename} (${audioData.length} bytes, format: ${ext})`);
   const stopTimer = logger.time(`forge-transcribe-${filename}`);
 
-  const response = await fetch(`${FORGE_URL}/v1/transcribe`, {
+  const transcribeUrl = `${FORGE_URL}/v1/transcribe`;
+  const response = await langfuseObservability.traceForgeFetch({
+    name: 'nexus-public.worker.data-import.transcribe',
+    url: transcribeUrl,
+    model: 'whisper',
+    input: { filename, audio_bytes: audioData.length, audio_format: ext },
+    metadata: { audio_contents: 'suppressed' },
+    summarizeResponse: async (resp: Response) => {
+      const output: Record<string, unknown> = { ok: resp.ok, status: resp.status };
+      try {
+        const clone = await resp.clone().json() as { transcript?: string; duration_seconds?: number; model?: string; latency_ms?: number };
+        output.transcript_chars = clone.transcript?.length ?? 0;
+        output.duration_seconds = clone.duration_seconds;
+        output.model = clone.model;
+        output.latency_ms = clone.latency_ms;
+      } catch {
+        // Non-JSON responses are still audited by status.
+      }
+      return output;
+    },
+  }, () => fetch(transcribeUrl, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -404,7 +424,7 @@ async function transcribeWithForge(s3Key: string, filename: string, _importId: s
       model: 'whisper',
     }),
     signal: AbortSignal.timeout(300_000), // 5 min for long audio
-  });
+  }));
   stopTimer();
 
   if (!response.ok) {
