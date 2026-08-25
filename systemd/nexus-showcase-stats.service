@@ -1,4 +1,5 @@
 [Unit]
+OnFailure=notify-failure@%n.service
 Description=Nexus Showcase — Live Stats Tick (writes live.json for nexus.example.io)
 After=network-online.target postgresql.service
 Wants=network-online.target
