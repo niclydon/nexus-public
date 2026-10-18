@@ -29,7 +29,7 @@
     "node": ">=20"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.82.0",
+    "@anthropic-ai/sdk": "^0.40.0",
     "@types/sax": "^1.2.7",
     "better-sqlite3": "^12.8.0",
     "dotenv": "^17.4.0",
