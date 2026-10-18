@@ -7,19 +7,25 @@ const router = Router();
 // GET /v1/search?q=...&categories=...&limit=...&rerank=...
 router.get('/', async (req, res) => {
   try {
-    const q = req.query.q as string;
-    if (!q || q.trim().length === 0) {
+    // Express query values can be arrays or objects when a caller sends
+    // q[]=x style parameters; validate real types instead of casting.
+    const rawQ: unknown = req.query.q;
+    if (typeof rawQ !== 'string' || rawQ.trim().length === 0) {
       res.status(400).json({ error: 'Missing required query parameter: q' });
       return;
     }
+    const q: string = rawQ;
 
-    const categories = req.query.categories
-      ? (req.query.categories as string).split(',').map(c => c.trim()) as semanticSearch.SearchCategory[]
+    const rawCategories: unknown = req.query.categories;
+    const categories = typeof rawCategories === 'string'
+      ? rawCategories.split(',').map(c => c.trim()) as semanticSearch.SearchCategory[]
       : undefined;
 
-    const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : undefined;
+    const rawLimit: unknown = req.query.limit;
+    const limit = typeof rawLimit === 'string' ? parseInt(rawLimit, 10) : undefined;
     const rerank = req.query.rerank !== undefined ? req.query.rerank !== 'false' : undefined;
-    const minSimilarity = req.query.min_similarity ? parseFloat(req.query.min_similarity as string) : undefined;
+    const rawMinSim: unknown = req.query.min_similarity;
+    const minSimilarity = typeof rawMinSim === 'string' ? parseFloat(rawMinSim) : undefined;
 
     const result = await semanticSearch.search({
       query: q,
@@ -47,7 +53,7 @@ router.post('/', async (req, res) => {
       min_similarity?: number;
     };
 
-    if (!q || q.trim().length === 0) {
+    if (typeof q !== 'string' || q.trim().length === 0) {
       res.status(400).json({ error: 'Missing required field: query' });
       return;
     }

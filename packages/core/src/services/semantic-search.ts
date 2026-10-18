@@ -442,10 +442,8 @@ export async function search(options: SearchOptions): Promise<SearchResponse> {
     .filter((c): c is SearchCategory => typeof c === 'string');
   const rawLimitNum = Number(options.limit ?? 20);
   const rawMinSim = Number(options.minSimilarity ?? 0.3);
-  const {
-    query,
-    rerank: doRerank = true,
-  } = options;
+  const { rerank: doRerank = true } = options;
+  const query: string = options.query;
 
   const limit = Math.min(Math.max(Number.isFinite(rawLimitNum) ? Math.floor(rawLimitNum) : 20, 1), 100);
   const minSimilarity = Number.isFinite(rawMinSim) ? Math.min(Math.max(rawMinSim, 0), 1) : 0.3;
