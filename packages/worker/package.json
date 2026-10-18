@@ -15,7 +15,7 @@
     "@google/genai": "^1.0.0",
     "googleapis": "^144.0.0",
     "@nexus/core": "*",
-    "sharp": "^0.33.0",
+    "sharp": "^0.35.5",
     "jsonwebtoken": "^9.0.0",
     "openai": "^4.80.0",
     "resend": "^4.0.0",
