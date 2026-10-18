@@ -23,7 +23,7 @@
 import 'dotenv/config';
 import pg from 'pg';
 import * as net from 'node:net';
-import { execSync } from 'node:child_process';
+import { execSync, execFileSync } from 'node:child_process';
 
 if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL not set');
 
@@ -79,7 +79,7 @@ function checkSystemd(t: Target): CheckResult {
   const wantState = (t.expected || 'active').trim();
   let out: string;
   try {
-    out = execSync(`systemctl is-active ${t.endpoint}`, { encoding: 'utf-8', timeout: t.timeout_ms }).trim();
+    out = execFileSync('systemctl', ['is-active', t.endpoint], { encoding: 'utf-8', timeout: t.timeout_ms }).trim();
   } catch (e: any) {
     out = (e.stdout?.toString().trim() || e.message || 'unknown').trim();
   }

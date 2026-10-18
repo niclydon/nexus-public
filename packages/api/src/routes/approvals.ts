@@ -1,9 +1,13 @@
 import { Router } from 'express';
 import { query, getPool, requireCaller, createLogger } from '@nexus/core';
 import { param } from '../util.js';
+import { rateLimit } from '../middleware/rate-limit.js';
 
 const logger = createLogger('routes/approvals');
 const router = Router();
+
+// Approvals mutate state; cap abuse at the route.
+router.use(rateLimit({ windowMs: 60_000, max: 300 }));
 
 // GET /v1/approvals — list pending approvals
 router.get('/', async (_req, res) => {

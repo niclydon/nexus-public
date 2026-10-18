@@ -15,7 +15,7 @@
 import 'dotenv/config';
 import * as fs from 'fs';
 import * as path from 'path';
-import { execSync, spawnSync } from 'child_process';
+import { execFileSync, spawnSync } from 'child_process';
 import Anthropic from '@anthropic-ai/sdk';
 import { observedScriptLlm } from './lib/langfuse-script.js';
 
@@ -119,8 +119,11 @@ function loadCommits(): { repos: string[]; months: string[]; data: Record<string
 
   for (const repo of repoDirs) {
     try {
-      const out = execSync(
-        `git -C ${path.join(PROJECTS_DIR, repo)} log --pretty=format:'%ad' --date=format:'%Y-%m' --all 2>/dev/null`,
+      // Argument array, no shell: the repo directory name comes from the
+      // filesystem and must never be interpolated into a shell string.
+      const out = execFileSync(
+        'git',
+        ['-C', path.join(PROJECTS_DIR, repo), 'log', '--pretty=format:%ad', '--date=format:%Y-%m', '--all'],
         { encoding: 'utf-8', maxBuffer: 50 * 1024 * 1024 },
       ).trim();
       if (!out) continue;

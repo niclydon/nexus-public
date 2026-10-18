@@ -1,3 +1,8 @@
+> **Historical document (marked October 18, 2026).** This reference describes
+> the snapshot-era schema (migrations 001 to 057). The private schema has since
+> been rebuilt and extended far past this set; do not use this file as a current
+> schema reference.
+
 # Nexus Database Schema Reference
 
 **Database:** `nexus` on Primary-Server (localhost:5432, user `dbuser`)

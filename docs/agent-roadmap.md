@@ -1,3 +1,8 @@
+> **Historical document (marked October 18, 2026).** This roadmap describes the
+> pre-rebuild platform of spring 2026, including its original eight-agent roster.
+> It is kept for the design history. For the current direction see
+> `docs/agent-doctrine.md` and `docs/what-changed-since-2026-08.md`.
+
 # Nexus Agent Roadmap
 ## From Monitoring Platform to Personal AI Family Office
 

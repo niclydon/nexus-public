@@ -786,7 +786,7 @@ async function handleSendPushoverTool(agentId: string, params: Record<string, un
 }
 
 async function handleRestartService(_agentId: string, params: Record<string, unknown>): Promise<string> {
-  const { execSync } = await import('node:child_process');
+  const { execFileSync } = await import('node:child_process');
   const service = String(params.service ?? '');
   if (!service) return 'ERROR: service name is required';
 
@@ -795,8 +795,10 @@ async function handleRestartService(_agentId: string, params: Record<string, unk
   if (!allowed.includes(service)) return `ERROR: Service '${service}' not in allowlist (${allowed.join(', ')})`;
 
   try {
-    execSync(`sudo systemctl restart ${service}`, { timeout: 30_000, encoding: 'utf-8' });
-    const status = execSync(`systemctl is-active ${service}`, { encoding: 'utf-8' }).trim();
+    // Argument arrays, no shell (the allowlist above is the authorization
+    // check; this keeps the value out of a shell string regardless).
+    execFileSync('sudo', ['systemctl', 'restart', service], { timeout: 30_000, encoding: 'utf-8' });
+    const status = execFileSync('systemctl', ['is-active', service], { encoding: 'utf-8' }).trim();
     return `Restarted ${service}: ${status}`;
   } catch (err) {
     return `ERROR restarting ${service}: ${(err as Error).message}`;
@@ -927,60 +929,77 @@ async function handleGitStatus(_agentId: string, _params: Record<string, unknown
   }
 }
 
+const GIT_BRANCH_RE = /^[A-Za-z0-9][A-Za-z0-9._/-]*$/;
+
+function isValidBranch(branch: string): boolean {
+  return GIT_BRANCH_RE.test(branch) && !branch.includes('..') && !branch.startsWith('-');
+}
+
 async function handleGitCommitPush(_agentId: string, params: Record<string, unknown>): Promise<string> {
-  const { execSync } = await import('node:child_process');
+  const { execFileSync } = await import('node:child_process');
   const message = String(params.message ?? '');
   const branch = String(params.branch ?? '');
   const files = (params.files as string[]) ?? [];
   if (!message) return 'ERROR: message is required';
   if (!branch) return 'ERROR: branch is required (e.g. fix/sentiment-emoji)';
+  // All git invocations below use execFileSync with argument arrays (no
+  // shell), so branch, file, and message values cannot inject commands.
+  // The branch name is still validated because git itself parses it.
+  if (!isValidBranch(branch)) return 'ERROR: invalid branch name';
+  for (const f of files) {
+    if (typeof f !== 'string' || f.startsWith('-') || f.startsWith('/')) {
+      return `ERROR: invalid file path: ${String(f)}`;
+    }
+  }
+  const git = (args: string[], timeout = 30_000): string =>
+    execFileSync('git', args, { cwd: REPO_ROOT, encoding: 'utf-8', timeout });
 
   try {
     // Create and switch to branch
     try {
-      execSync(`git checkout -b ${branch}`, { cwd: REPO_ROOT, encoding: 'utf-8' });
+      git(['checkout', '-b', branch]);
     } catch {
       // Branch might already exist
-      execSync(`git checkout ${branch}`, { cwd: REPO_ROOT, encoding: 'utf-8' });
+      git(['checkout', branch]);
     }
 
     // Stage files
     if (files.length > 0) {
-      execSync(`git add ${files.map(f => `"${f}"`).join(' ')}`, { cwd: REPO_ROOT, encoding: 'utf-8' });
+      git(['add', '--', ...files]);
     } else {
-      execSync('git add -A', { cwd: REPO_ROOT, encoding: 'utf-8' });
+      git(['add', '-A']);
     }
 
-    // Commit
-    const commitOutput = execSync(
-      `git commit -m "${message.replace(/"/g, '\\"')}"`,
-      { cwd: REPO_ROOT, encoding: 'utf-8' },
-    );
+    // Commit (message passed as a single argument, never shell-quoted)
+    const commitOutput = git(['commit', '-m', message]);
 
     // Push branch
-    execSync(`git push -u origin ${branch}`, { cwd: REPO_ROOT, encoding: 'utf-8', timeout: 30_000 });
+    git(['push', '-u', 'origin', branch]);
 
     // Switch back to main
-    execSync('git checkout main', { cwd: REPO_ROOT, encoding: 'utf-8' });
+    git(['checkout', 'main']);
 
     return `Committed to branch ${branch} and pushed.\n${commitOutput.trim()}\nNow use create_pr to open a pull request.`;
   } catch (err) {
     // Try to get back to main on error
-    try { execSync('git checkout main', { cwd: REPO_ROOT, encoding: 'utf-8' }); } catch { /* ok */ }
+    try { git(['checkout', 'main']); } catch { /* ok */ }
     return `ERROR: ${(err as Error).message}`;
   }
 }
 
 async function handleCreatePr(_agentId: string, params: Record<string, unknown>): Promise<string> {
-  const { execSync } = await import('node:child_process');
+  const { execFileSync } = await import('node:child_process');
   const title = String(params.title ?? '');
   const body = String(params.body ?? '');
   const branch = String(params.branch ?? '');
   if (!title || !branch) return 'ERROR: title and branch are required';
+  if (!isValidBranch(branch)) return 'ERROR: invalid branch name';
 
   try {
-    const output = execSync(
-      `gh pr create --title "${title.replace(/"/g, '\\"')}" --body "${(body || 'Automated fix by Fixer agent').replace(/"/g, '\\"')}" --head ${branch} --base main`,
+    // Argument array, no shell: title and body cannot inject commands.
+    const output = execFileSync(
+      'gh',
+      ['pr', 'create', '--title', title, '--body', body || 'Automated fix by Fixer agent', '--head', branch, '--base', 'main'],
       { cwd: REPO_ROOT, encoding: 'utf-8', timeout: 30_000 },
     );
     return `PR created: ${output.trim()}`;
@@ -1027,10 +1046,10 @@ async function handleInstallMcpServer(_agentId: string, params: Record<string, u
     [serverName, description, installPackage],
   );
 
-  // Install the package
-  const { execSync } = await import('node:child_process');
+  // Install the package (argument array, no shell)
+  const { execFileSync } = await import('node:child_process');
   try {
-    execSync(`npm install -g ${installPackage}`, { timeout: 120_000, encoding: 'utf-8' });
+    execFileSync('npm', ['install', '-g', installPackage], { timeout: 120_000, encoding: 'utf-8' });
   } catch (err) {
     await query(`UPDATE mcp_servers SET status = 'error', status_message = $2 WHERE server_name = $1`,
       [serverName, (err as Error).message]);

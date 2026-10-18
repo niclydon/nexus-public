@@ -29,6 +29,31 @@ export function getPool(): pg.Pool {
   return pool;
 }
 
+/**
+ * Parameterized query helper built from a template literal.
+ *
+ *   const { rows } = await query(...sql`SELECT * FROM t WHERE id = ${id}`);
+ *
+ * Interpolated values are always sent as bound parameters ($1, $2, ...),
+ * never concatenated into the SQL text. Prefer this over calling query()
+ * with a hand-built string.
+ */
+export function sql(strings: TemplateStringsArray, ...values: unknown[]): { text: string; params: unknown[] } {
+  let text = strings[0];
+  const params: unknown[] = [];
+  for (let i = 0; i < values.length; i++) {
+    params.push(values[i]);
+    text += `$${i + 1}` + strings[i + 1];
+  }
+  return { text, params };
+}
+
+/**
+ * Run a query. `text` must be trusted SQL written by a developer, with all
+ * runtime values passed through `params` as bound parameters. Never build
+ * `text` by interpolating caller- or user-supplied values; use sql`` above
+ * so interpolation is parameterized by construction.
+ */
 export async function query<T extends pg.QueryResultRow = pg.QueryResultRow>(
   text: string,
   params?: unknown[],

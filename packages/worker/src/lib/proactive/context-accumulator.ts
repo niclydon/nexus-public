@@ -914,7 +914,10 @@ function extractPlainTextBody(payload: any): string | null {
   // Fallback: if it's text/html and no plain text found
   if (payload.mimeType === 'text/html' && payload.body?.data) {
     const html = Buffer.from(payload.body.data, 'base64url').toString('utf-8');
-    return html.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+    const withoutBlocks = html
+      .replace(/<script\b[^>]*>[\s\S]*?<\/script\s*>/gi, '')
+      .replace(/<style\b[^>]*>[\s\S]*?<\/style\s*>/gi, '');
+    return withoutBlocks.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
   }
 
   return null;

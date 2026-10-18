@@ -22,7 +22,8 @@
     "clean": "npm run clean --workspaces",
     "typecheck": "tsc --build",
     "migrate": "npm run migrate -w @nexus/core",
-    "add:source": "node scripts/add-source.mjs"
+    "add:source": "node scripts/add-source.mjs",
+    "test": "npm run build && node scripts/smoke-test.mjs"
   },
   "engines": {
     "node": ">=20"

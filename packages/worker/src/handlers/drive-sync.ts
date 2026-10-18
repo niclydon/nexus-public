@@ -87,8 +87,10 @@ export async function handleDriveSync(_job: TempoJob): Promise<Record<string, un
     );
 
     const lastSync = rows[0]?.last_sync_at;
+    // Derived from a Date object, so the interpolated value below is always
+    // a plain YYYY-MM-DD date, never caller-controlled text.
     const modifiedAfter = lastSync
-      ? lastSync.toISOString().split('T')[0].replace(/-/g, '-')
+      ? lastSync.toISOString().split('T')[0]
       : new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
     // Raw query to Google Drive API — search for recently modified files

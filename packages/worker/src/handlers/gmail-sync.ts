@@ -171,7 +171,8 @@ function parseEmailContent(messageId: string, text: string): Record<string, unkn
   if (!text || text.length < 10) return null;
 
   const getField = (name: string): string => {
-    const regex = new RegExp(`^${name}:\\s*(.+)$`, 'mi');
+    const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`^${escaped}:\\s*(.+)$`, 'mi');
     const match = text.match(regex);
     return match?.[1]?.trim() ?? '';
   };

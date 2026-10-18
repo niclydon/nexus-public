@@ -322,7 +322,8 @@ function appendSourceEntry(root, args, dryRun) {
   const current = readFileSync(yamlPath, 'utf8');
   const entry = yamlEntry(args);
 
-  if (new RegExp(`\\n\\s*- source_key: ${args.name}(\\n|$)`).test(`\n${current}`)) {
+  const escapedName = args.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  if (new RegExp(`\\n\\s*- source_key: ${escapedName}(\\n|$)`).test(`\n${current}`)) {
     fail(`docs/sources.yaml already contains source_key '${args.name}'`);
   }
 

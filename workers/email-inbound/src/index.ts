@@ -69,13 +69,20 @@ function extractPlainText(raw: string): string {
   if (headerEnd !== -1) {
     const body = raw.slice(headerEnd + 4).trim();
     if (body.startsWith('<') || body.includes('<html')) {
-      return body
-        .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
-        .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+      let stripped = body;
+      let prev: string;
+      do {
+        prev = stripped;
+        stripped = stripped
+          .replace(/<style\b[^>]*>[\s\S]*?<\/style\s*>/gi, '')
+          .replace(/<script\b[^>]*>[\s\S]*?<\/script\s*>/gi, '');
+      } while (stripped !== prev);
+      return stripped
         .replace(/<br\s*\/?>/gi, '\n')
         .replace(/<\/p>/gi, '\n\n')
         .replace(/<[^>]*>/g, '')
-        .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+        // Decode &amp; last so encoded entities are not manufactured twice.
+        .replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&')
         .replace(/\n{3,}/g, '\n\n')
         .trim();
     }

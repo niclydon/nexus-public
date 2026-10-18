@@ -1,7 +1,7 @@
 /**
  * Nexus MCP Server — exposes the agent platform to external AI clients.
  *
- * 24 tools across 8 domains:
+ * 27 tools across 9 domains:
  *   - Core: agent_status, send_message, list_decisions, query, job_status, approvals
  *   - Search: search, knowledge_lookup
  *   - Health: platform_health, forge_status, data_sources
@@ -11,6 +11,7 @@
  *   - People: people_lookup, contacts_search
  *   - Biography: biography_queue, biography_decide
  *   - Insights: insights, llm_costs
+ *   - Coordination: agent_bus_post, agent_bus_read, agent_bus_hwm (public delta, Oct 2026; see migrations/058-agent-bus.sql)
  *
  * Transport: Streamable HTTP (port 7701) + stdio (for Claude Desktop)
  */
@@ -29,6 +30,7 @@ import { registerMergeTools } from './tools/merge.js';
 import { registerPeopleTools } from './tools/people.js';
 import { registerBiographyTools } from './tools/biography.js';
 import { registerInsightTools } from './tools/insights.js';
+import { registerAgentBusTools } from './tools/agent-bus.js';
 
 assertShowcaseDemoEnabled('nexus-mcp');
 
@@ -218,6 +220,7 @@ function createServer(): McpServer {
   registerPeopleTools(server);
   registerBiographyTools(server);
   registerInsightTools(server);
+  registerAgentBusTools(server);
 
   return server;
 }

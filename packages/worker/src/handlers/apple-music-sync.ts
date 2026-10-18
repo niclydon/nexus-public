@@ -12,7 +12,7 @@
 import type { TempoJob } from '../job-worker.js';
 import { getPool, createLogger } from '@nexus/core';
 import { jobLog } from '../lib/job-log.js';
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import fs from 'fs';
 
 const logger = createLogger('apple-music-sync');
@@ -39,7 +39,7 @@ export async function handleAppleMusicSync(job: TempoJob): Promise<Record<string
   logger.log('Running Biome parser on Dev-Server...');
   const stopParse = logger.time('biome-parser-ssh');
   try {
-    execSync('ssh dev-server "~/biome-venv/bin/python3 ~/ingest-apple-music-biome.py"', {
+    execFileSync('ssh', ['dev-server', '~/biome-venv/bin/python3 ~/ingest-apple-music-biome.py'], {
       timeout: 60_000,
       stdio: 'pipe',
     });
@@ -55,7 +55,7 @@ export async function handleAppleMusicSync(job: TempoJob): Promise<Record<string
   logger.logVerbose('Copying Biome JSON from Dev-Server...');
   const stopCopy = logger.time('biome-scp');
   try {
-    execSync(`scp dev-server:${BIOME_JSON_PATH} ${BIOME_JSON_PATH}`, {
+    execFileSync('scp', [`dev-server:${BIOME_JSON_PATH}`, BIOME_JSON_PATH], {
       timeout: 30_000,
       stdio: 'pipe',
     });

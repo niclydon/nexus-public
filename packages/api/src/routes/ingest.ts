@@ -1,8 +1,12 @@
 import { Router } from 'express';
 import { query, getPool, createLogger } from '@nexus/core';
+import { rateLimit } from '../middleware/rate-limit.js';
 
 const logger = createLogger('routes/ingest');
 const router = Router();
+
+// Ingest is reachable by an external email worker; cap abuse at the route.
+router.use(rateLimit({ windowMs: 60_000, max: 120 }));
 
 /**
  * POST /v1/ingest/email — receive an email for an agent

@@ -360,7 +360,7 @@ async function getEmbedding(text: string): Promise<number[]> {
   }
   const json = (await res.json()) as { data?: Array<{ embedding: number[] }> };
   const vec = json.data?.[0]?.embedding;
-  if (vec) return vec;
+  if (Array.isArray(vec) && vec.every((n) => typeof n === 'number' && Number.isFinite(n))) return vec;
   throw new Error('Unexpected embed response shape');
 }
 
@@ -431,15 +431,24 @@ async function searchTable(
 // ---------------------------------------------------------------------------
 
 export async function search(options: SearchOptions): Promise<SearchResponse> {
+  // Options arrive from API callers, so validate types before use: an
+  // Express query string can deliver arrays or objects where scalars are
+  // expected (parameter tampering), and arithmetic on those is meaningless.
+  if (typeof options?.query !== 'string' || options.query.length === 0) {
+    throw new TypeError('search: query must be a non-empty string');
+  }
+  const rawCategories: unknown = options.categories ?? ['all'];
+  const categories = (Array.isArray(rawCategories) ? rawCategories : [rawCategories])
+    .filter((c): c is SearchCategory => typeof c === 'string');
+  const rawLimitNum = Number(options.limit ?? 20);
+  const rawMinSim = Number(options.minSimilarity ?? 0.3);
   const {
     query,
-    categories = ['all'],
-    limit: rawLimit = 20,
     rerank: doRerank = true,
-    minSimilarity = 0.3,
   } = options;
 
-  const limit = Math.min(Math.max(rawLimit, 1), 100);
+  const limit = Math.min(Math.max(Number.isFinite(rawLimitNum) ? Math.floor(rawLimitNum) : 20, 1), 100);
+  const minSimilarity = Number.isFinite(rawMinSim) ? Math.min(Math.max(rawMinSim, 0), 1) : 0.3;
   const perTableLimit = limit * 2;
   const configs = resolveConfigs(categories);
 

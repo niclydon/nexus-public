@@ -4,6 +4,15 @@ A distributed agent architecture platform that orchestrates autonomous AI agents
 
 Built as a solo project to unify multiple existing systems into a single ecosystem with centralized services for tools, jobs, knowledge, communication, agent runtime, and discovery.
 
+> **Snapshot: October 18, 2026.** This repository is a dated public snapshot of a
+> private system that keeps moving. It is not a mirror and it is not kept in
+> lockstep with the private codebase. Counts, rosters, and architectures below
+> describe the code in this snapshot unless a section is explicitly dated
+> otherwise. See [SNAPSHOT.md](SNAPSHOT.md) for provenance and scrub method, and
+> [docs/what-changed-since-2026-08.md](docs/what-changed-since-2026-08.md) for
+> what the private platform has done since the previous snapshot
+> (August 25, 2026).
+
 ## Public Showcase Safety
 
 This repository is a **public showcase** of a private system and is intentionally **non-production**.
@@ -33,13 +42,13 @@ If you are evaluating the architecture, read and inspect the code. Do not treat 
 ┌──────────────────────┴───────────────────────────────────────────┐
 │                        @nexus/worker                             │
 │  Agent Cycle Runner · Job Worker · Tool Executor · Autoscaler    │
-│  Event Listener · MCP Client Manager · 90+ Job Handlers          │
+│  Event Listener · MCP Client Manager · 96 Job Handlers (snapshot)          │
 │  LLM Router (multi-provider fallback chain)                      │
 └──────────────────────────────────────────────────────────────────┘
                        │
 ┌──────────────────────┴───────────────────────────────────────────┐
 │                         @nexus/mcp                               │
-│              MCP Server — 24 tools across 8 domains              │
+│              MCP Server: 27 tools across 9 domains (snapshot + Oct 2026 delta)              │
 │        HTTP + stdio transport for Claude Desktop integration     │
 └──────────────────────────────────────────────────────────────────┘
 ```
@@ -64,7 +73,13 @@ Agents are config-driven rows in `agent_registry`, run as short-lived cycles on 
 
 Agent personas use the [ClawSouls Soul Spec v0.5](https://github.com/clawsouls/soulspec/blob/main/soul-spec-v0.5.md) with progressive disclosure (3 levels of context loading based on cycle needs).
 
-### 8 Agents
+### Agents in this snapshot (8)
+
+This roster is historical. Six of these eight personas (Chronicler, Circle,
+Coder, Inference, Infra, Pipeline) have since been retired or re-scoped in the
+private system; their packages now live under `souls/_historical/`. ARIA and
+Insight continue. The current private roster is described in
+`docs/what-changed-since-2026-08.md`.
 
 | Agent | Role | Schedule |
 |-------|------|----------|
@@ -83,9 +98,9 @@ Agent personas use the [ClawSouls Soul Spec v0.5](https://github.com/clawsouls/s
 - **Layer 2**: Agent-registered handlers — agents subscribe to job types, delivered via inbox
 - **Layer 3**: Agent tasks — ad-hoc delegated work picked up during next cycle
 
-### Tool Catalog
+### Tool Catalog (snapshot era)
 
-~360 tools total: ~50 internal handlers + ~310 MCP tools from 10 connected servers (Gmail, GitHub, Cloudflare, Notion, Google Drive, Apple Photos, iMessage, Brave Search, etc.). Per-agent grants with risk-based approval gating.
+At the time of the code in this snapshot, the platform catalog held ~360 tools total: ~50 internal handlers + ~310 MCP tools from 10 connected servers (Gmail, GitHub, Cloudflare, Notion, Google Drive, Apple Photos, iMessage, Brave Search, etc.). Per-agent grants with risk-based approval gating.
 
 ### LLM Router
 
@@ -105,6 +120,30 @@ Source → Normalizer → ingestion_log → source table → proactive rules →
 
 14 data sources with configurable sync intervals. Proactive Intelligence Engine (PIE) classifies significance and generates anticipatory insights.
 
+## Where the private system is now (October 2026)
+
+The private platform this snapshot was taken from has moved well past it:
+
+- a cross-runtime coordination layer (registry, conditions, stream) now sits
+  between the agents, replacing direct seat-to-seat assumptions;
+- the knowledge graph was rebuilt in fall 2026, and graph writes now run only
+  through governed paths with per-case approval for identity merges;
+- work runs through an operator backlog with typed lanes, including a
+  no-code data-task lane drained by a dedicated worker;
+- the agent roster was re-scoped: a chief-of-staff seat owns triage, routing,
+  and follow-through, a platform-operations seat owns estate telemetry, and
+  several snapshot-era personas were retired;
+- the private MCP surface has grown from the two dozen tools of the original
+  snapshot to several hundred, and the private schema is in the thousands
+  of migrations. This refresh adds one representative piece of that newer
+  work: the agent-bus coordination tools (packages/mcp/src/tools/agent-bus.ts)
+  with their schema (migrations/058-agent-bus.sql).
+
+None of that code is in this repository. This snapshot stays useful as a
+readable, self-contained picture of the architecture at a point in time, and
+future refreshes will follow the same rule: dated snapshots with a provenance
+record, never a live mirror.
+
 ## Tech Stack
 
 - **Language**: TypeScript (Node.js 20+)
@@ -121,11 +160,11 @@ Source → Normalizer → ingestion_log → source table → proactive rules →
 packages/
   core/       Shared services, types, database, auth, migrations
   api/        Express REST API server (port 7700)
-  mcp/        MCP server (port 7701) — 24 tools, HTTP + stdio
+  mcp/        MCP server (port 7701): 27 tools, HTTP + stdio
   worker/     Agent runner, job worker, tool executor, autoscaler
 
-souls/        Agent persona packages (Soul Spec v0.5)
-migrations/   PostgreSQL schema migrations (54 files)
+souls/        Agent persona packages (Soul Spec v0.5); retired personas under souls/_historical/
+migrations/   PostgreSQL schema migrations (57 files in this snapshot)
 systemd/      Service unit files
 scripts/      Deployment, health monitoring, utilities
 workers/      Cloudflare Workers (email inbound routing)

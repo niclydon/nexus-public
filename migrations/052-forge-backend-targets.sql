@@ -14,7 +14,7 @@
 -- llama-server crash would.
 --
 -- NOTE: Forge's own /health/backends reports dev-server-vlm at
--- http://10.0.0.1:8081 which is the wrong IP (Dev-Server's LAN address
+-- the gateway's LAN address on port 8081, which is the wrong target (a dev machine's address
 -- differs from the gateway). Using the DNS hostname
 -- dev-server.example.io:8081 instead — this resolves correctly from
 -- Primary-Server and is more stable against IP changes. Forge's stale URL

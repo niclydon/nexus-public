@@ -741,7 +741,7 @@ Respond with JSON (no markdown fences):
     {
       "category": "people",
       "domain": "people",
-      "key": "lucas_job_2018",
+      "key": "person_job_2018",
       "value": "As of 2018, [Person] worked at Acme Corp",
       "when": "2018",
       "confidence": 0.7

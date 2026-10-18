@@ -1,5 +1,5 @@
 // Infrastructure
-export { getPool, query, shutdown } from './db.js';
+export { getPool, query, shutdown, sql } from './db.js';
 export { createLogger } from './logger.js';
 export {
   assertShowcaseDemoEnabled,

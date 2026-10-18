@@ -91,14 +91,22 @@ export async function researchTopic(params: {
 
 function extractTextFromHtml(html: string): string {
   let text = html;
-  text = text.replace(/<script[\s\S]*?<\/script>/gi, '');
-  text = text.replace(/<style[\s\S]*?<\/style>/gi, '');
-  text = text.replace(/<noscript[\s\S]*?<\/noscript>/gi, '');
+  // Remove script/style/noscript/svg blocks completely, repeating until
+  // stable so nested or split tags cannot leave a surviving fragment.
+  let prev: string;
+  do {
+    prev = text;
+    text = text
+      .replace(/<script\b[^>]*>[\s\S]*?<\/script\s*>/gi, '')
+      .replace(/<style\b[^>]*>[\s\S]*?<\/style\s*>/gi, '')
+      .replace(/<noscript\b[^>]*>[\s\S]*?<\/noscript\s*>/gi, '')
+      .replace(/<svg\b[^>]*>[\s\S]*?<\/svg\s*>/gi, '');
+  } while (text !== prev);
   text = text.replace(/<!--[\s\S]*?-->/g, '');
-  text = text.replace(/<svg[\s\S]*?<\/svg>/gi, '');
   text = text.replace(/<\/?(p|div|br|hr|h[1-6]|li|tr|blockquote|section|article|header|footer|nav|main|aside|pre|table)[^>]*>/gi, '\n');
   text = text.replace(/<[^>]+>/g, '');
-  text = text.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&nbsp;/g, ' ');
+  // Decode entities with &amp; last (see decodeHtmlEntities in mbox-parser).
+  text = text.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&');
   text = text.replace(/[ \t]+/g, ' ').replace(/\n\s*\n/g, '\n\n');
   return text.trim();
 }
