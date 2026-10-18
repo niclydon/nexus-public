@@ -17,7 +17,7 @@
  *     roles the SET ROLE machinery expects.
  */
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { z } from 'zod';
+import { z } from "zod/v3";
 import { getPool } from '@nexus/core';
 
 export type BusCaller = 'coordinator' | 'operator' | 'worker';

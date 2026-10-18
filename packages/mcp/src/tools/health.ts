@@ -1,5 +1,5 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { z } from 'zod';
+import { z } from "zod/v3";
 import { getPool, platformMode } from '@nexus/core';
 
 const FORGE_BASE_URL = (process.env.FORGE_BASE_URL || 'http://localhost:8642')

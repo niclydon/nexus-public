@@ -1,5 +1,5 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { z } from 'zod';
+import { z } from "zod/v3";
 import { getPool } from '@nexus/core';
 
 // Safe job types that can be triggered via MCP. Anything not on this list

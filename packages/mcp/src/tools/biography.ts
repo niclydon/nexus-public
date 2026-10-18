@@ -1,5 +1,5 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { z } from 'zod';
+import { z } from "zod/v3";
 import { getPool } from '@nexus/core';
 
 export function registerBiographyTools(server: McpServer): void {
