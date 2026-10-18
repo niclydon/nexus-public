@@ -19,7 +19,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import express from 'express';
-import { z } from 'zod';
+import { z } from "zod/v3";
 import { getPool, shutdown, assertShowcaseDemoEnabled } from '@nexus/core';
 
 import { registerSearchTools } from './tools/search.js';

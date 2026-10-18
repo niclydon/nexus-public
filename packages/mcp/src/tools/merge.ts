@@ -1,5 +1,5 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { z } from 'zod';
+import { z } from "zod/v3";
 import { getPool, entityMerge } from '@nexus/core';
 
 export function registerMergeTools(server: McpServer): void {
