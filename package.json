@@ -32,7 +32,7 @@
     "@anthropic-ai/sdk": "^0.40.0",
     "@types/sax": "^1.2.7",
     "better-sqlite3": "^12.8.0",
-    "dotenv": "^17.4.0",
+    "dotenv": "^18.0.9",
     "langfuse": "^3.38.20",
     "ml-kmeans": "^7.0.0",
     "pst-extractor": "^1.12.0",
